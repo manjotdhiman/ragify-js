@@ -1,6 +1,7 @@
 # Ragify.js
 
 A powerful and flexible Retrieval-Augmented Generation (RAG) library for Node.js and TypeScript.
+<img width="905" alt="image" src="https://github.com/user-attachments/assets/0517967d-fdcd-4887-8642-beba3d55be18" />
 
 ## Features
 
