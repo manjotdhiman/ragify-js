@@ -1,0 +1,299 @@
+# Examples
+
+This page provides various examples of using Ragify.js in different scenarios.
+
+## Basic Examples
+
+### Simple Document Ingestion and Querying
+
+```typescript
+import { RAGEngine } from "ragify-js";
+
+// Initialize the RAG engine
+const rag = new RAGEngine({
+  llmProvider: "openai",
+  embeddingProvider: "openai",
+  vectorStore: "qdrant",
+  apiKeys: {
+    openai: "your-openai-key",
+    qdrant: "your-qdrant-key"
+  }
+});
+
+// Ingest a document
+await rag.ingestDocuments([
+  {
+    id: "doc1",
+    content: "Ragify.js is a powerful RAG library for Node.js and TypeScript.",
+    metadata: { source: "example" }
+  }
+]);
+
+// Query the document
+const results = await rag.query("What is Ragify.js?");
+console.log(results);
+```
+
+### Progress Tracking
+
+```typescript
+const progressTracker = {
+  onProgress: (progress: number, message: string) => {
+    console.log(`Progress: ${progress.toFixed(1)}% - ${message}`);
+  }
+};
+
+// Use with document ingestion
+await rag.ingestDocuments([document], progressTracker);
+
+// Use with querying
+const results = await rag.query("Your question", progressTracker);
+```
+
+## Advanced Examples
+
+### Batch Processing Large Documents
+
+```typescript
+// Process multiple documents in batches
+const documents = [
+  {
+    id: "doc1",
+    content: "First document content...",
+    metadata: { source: "example" }
+  },
+  {
+    id: "doc2",
+    content: "Second document content...",
+    metadata: { source: "example" }
+  }
+];
+
+await rag.ingestDocuments(documents, progressTracker);
+```
+
+### Custom Chunking Strategy
+
+```typescript
+const rag = new RAGEngine({
+  // ... other config
+  chunkingConfig: {
+    maxTokens: 200,
+    overlap: 50,
+    preserveSentences: true
+  }
+});
+```
+
+### Advanced Search Configuration
+
+```typescript
+const rag = new RAGEngine({
+  // ... other config
+  searchConfig: {
+    topK: 5,
+    minScore: 0.7
+  }
+});
+```
+
+## Real-World Examples
+
+### Document Q&A System
+
+```typescript
+import { RAGEngine } from "ragify-js";
+
+class DocumentQASystem {
+  private rag: RAGEngine;
+
+  constructor() {
+    this.rag = new RAGEngine({
+      llmProvider: "openai",
+      embeddingProvider: "openai",
+      vectorStore: "qdrant",
+      apiKeys: {
+        openai: process.env.OPENAI_API_KEY,
+        qdrant: process.env.QDRANT_API_KEY
+      }
+    });
+  }
+
+  async addDocument(content: string, metadata: Record<string, unknown>) {
+    await this.rag.ingestDocuments([
+      {
+        id: `doc-${Date.now()}`,
+        content,
+        metadata
+      }
+    ]);
+  }
+
+  async askQuestion(question: string) {
+    const results = await this.rag.query(question);
+    return results.map(result => ({
+      answer: result.context,
+      confidence: result.score,
+      source: result.metadata?.source
+    }));
+  }
+}
+
+// Usage
+const qa = new DocumentQASystem();
+await qa.addDocument("Your document content", { source: "example" });
+const answers = await qa.askQuestion("Your question");
+```
+
+### Content Recommendation System
+
+```typescript
+import { RAGEngine } from "ragify-js";
+
+class ContentRecommender {
+  private rag: RAGEngine;
+
+  constructor() {
+    this.rag = new RAGEngine({
+      llmProvider: "openai",
+      embeddingProvider: "openai",
+      vectorStore: "qdrant",
+      apiKeys: {
+        openai: process.env.OPENAI_API_KEY,
+        qdrant: process.env.QDRANT_API_KEY
+      },
+      searchConfig: {
+        topK: 10,
+        minScore: 0.6
+      }
+    });
+  }
+
+  async addContent(content: string, metadata: Record<string, unknown>) {
+    await this.rag.ingestDocuments([
+      {
+        id: `content-${Date.now()}`,
+        content,
+        metadata
+      }
+    ]);
+  }
+
+  async getRecommendations(userQuery: string) {
+    const results = await this.rag.query(userQuery);
+    return results.map(result => ({
+      content: result.context,
+      relevance: result.score,
+      metadata: result.metadata
+    }));
+  }
+}
+
+// Usage
+const recommender = new ContentRecommender();
+await recommender.addContent("Content to recommend", { category: "example" });
+const recommendations = await recommender.getRecommendations("User interests");
+```
+
+### Knowledge Base Search
+
+```typescript
+import { RAGEngine } from "ragify-js";
+
+class KnowledgeBase {
+  private rag: RAGEngine;
+
+  constructor() {
+    this.rag = new RAGEngine({
+      llmProvider: "openai",
+      embeddingProvider: "openai",
+      vectorStore: "qdrant",
+      apiKeys: {
+        openai: process.env.OPENAI_API_KEY,
+        qdrant: process.env.QDRANT_API_KEY
+      },
+      chunkingConfig: {
+        maxTokens: 300,
+        overlap: 100,
+        preserveSentences: true
+      }
+    });
+  }
+
+  async addArticle(content: string, metadata: Record<string, unknown>) {
+    await this.rag.ingestDocuments([
+      {
+        id: `article-${Date.now()}`,
+        content,
+        metadata
+      }
+    ]);
+  }
+
+  async search(query: string, options: {
+    minScore?: number;
+    maxResults?: number;
+  } = {}) {
+    const results = await this.rag.query(query);
+    return results
+      .filter(result => result.score >= (options.minScore ?? 0.7))
+      .slice(0, options.maxResults ?? 5)
+      .map(result => ({
+        excerpt: result.context,
+        relevance: result.score,
+        articleId: result.documentId,
+        metadata: result.metadata
+      }));
+  }
+}
+
+// Usage
+const kb = new KnowledgeBase();
+await kb.addArticle("Article content", { category: "example" });
+const searchResults = await kb.search("Search query", {
+  minScore: 0.8,
+  maxResults: 3
+});
+```
+
+## Error Handling Examples
+
+### Basic Error Handling
+
+```typescript
+try {
+  await rag.ingestDocuments([document]);
+} catch (error) {
+  console.error("Failed to ingest document:", error);
+}
+```
+
+### Retry Logic
+
+```typescript
+const rag = new RAGEngine({
+  // ... other config
+  retryConfig: {
+    maxRetries: 3,
+    initialDelay: 1000,
+    maxDelay: 10000
+  }
+});
+```
+
+### Progress Tracking with Error Handling
+
+```typescript
+const progressTracker = {
+  onProgress: (progress: number, message: string) => {
+    console.log(`Progress: ${progress.toFixed(1)}% - ${message}`);
+  }
+};
+
+try {
+  await rag.ingestDocuments([document], progressTracker);
+} catch (error) {
+  console.error("Failed to ingest document:", error);
+  // Handle error appropriately
+}
+``` 

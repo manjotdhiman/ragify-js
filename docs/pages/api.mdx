@@ -1,0 +1,263 @@
+# API Reference
+
+This page provides detailed documentation for the Ragify.js API.
+
+## RAGEngine
+
+The main class for interacting with the RAG system.
+
+### Constructor
+
+```typescript
+constructor(config: RAGEngineConfig)
+```
+
+Creates a new instance of the RAG engine with the specified configuration.
+
+#### Parameters
+
+- `config`: Configuration object for the RAG engine
+  ```typescript
+  interface RAGEngineConfig {
+    llmProvider: "openai";
+    embeddingProvider: "openai" | "cohere" | "huggingface";
+    embeddingModel?: string;
+    vectorStore: "qdrant" | "pinecone" | "milvus";
+    apiKeys: {
+      openai: string;
+      qdrant?: string;
+      cohere?: string;
+      huggingface?: string;
+    };
+    chunkingConfig?: {
+      maxTokens: number;
+      overlap: number;
+      preserveSentences: boolean;
+    };
+    searchConfig?: {
+      topK: number;
+      minScore: number;
+    };
+    retryConfig?: {
+      maxRetries: number;
+      initialDelay: number;
+      maxDelay: number;
+    };
+    vectorStoreConfig?: {
+      baseURL: string;
+      collection: string;
+      cacheConfig?: {
+        maxSize: number;
+        ttl: number;
+      };
+    };
+    maxConcurrentChunks?: number;
+  }
+  ```
+
+### Methods
+
+#### ingestDocuments
+
+```typescript
+async ingestDocuments(
+  docs: Document[],
+  tracker?: ProgressTracker
+): Promise<void>
+```
+
+Ingests documents into the RAG system.
+
+##### Parameters
+
+- `docs`: Array of documents to ingest
+  ```typescript
+  interface Document {
+    id: string;
+    content: string;
+    metadata?: Record<string, unknown>;
+  }
+  ```
+- `tracker`: Optional progress tracker
+  ```typescript
+  interface ProgressTracker {
+    onProgress: (progress: number, message: string) => void;
+  }
+  ```
+
+##### Returns
+
+Promise that resolves when all documents are ingested.
+
+#### query
+
+```typescript
+async query(
+  queryText: string,
+  tracker?: ProgressTracker
+): Promise<QueryResult[]>
+```
+
+Queries the RAG system for relevant information.
+
+##### Parameters
+
+- `queryText`: The query text to search for
+- `tracker`: Optional progress tracker
+
+##### Returns
+
+Promise that resolves to an array of query results:
+```typescript
+interface QueryResult {
+  context: string;
+  score: number;
+  documentId: string;
+  metadata?: Record<string, unknown>;
+}
+```
+
+#### deleteDocument
+
+```typescript
+async deleteDocument(
+  documentId: string,
+  tracker?: ProgressTracker
+): Promise<void>
+```
+
+Deletes a document and all its chunks from the system.
+
+##### Parameters
+
+- `documentId`: ID of the document to delete
+- `tracker`: Optional progress tracker
+
+##### Returns
+
+Promise that resolves when the document is deleted.
+
+#### clear
+
+```typescript
+async clear(tracker?: ProgressTracker): Promise<void>
+```
+
+Clears all documents from the system.
+
+##### Parameters
+
+- `tracker`: Optional progress tracker
+
+##### Returns
+
+Promise that resolves when all documents are cleared.
+
+#### getStats
+
+```typescript
+async getStats(): Promise<{
+  totalDocuments: number;
+  totalChunks: number;
+  averageChunksPerDocument: number;
+  lastUpdateTime: Date;
+}>
+```
+
+Gets statistics about the system.
+
+##### Returns
+
+Promise that resolves to system statistics:
+```typescript
+interface SystemStats {
+  totalDocuments: number;
+  totalChunks: number;
+  averageChunksPerDocument: number;
+  lastUpdateTime: Date;
+}
+```
+
+## Types
+
+### Document
+
+```typescript
+interface Document {
+  id: string;
+  content: string;
+  metadata?: Record<string, unknown>;
+}
+```
+
+### QueryResult
+
+```typescript
+interface QueryResult {
+  context: string;
+  score: number;
+  documentId: string;
+  metadata?: Record<string, unknown>;
+}
+```
+
+### ProgressTracker
+
+```typescript
+interface ProgressTracker {
+  onProgress: (progress: number, message: string) => void;
+}
+```
+
+### ChunkingConfig
+
+```typescript
+interface ChunkingConfig {
+  maxTokens: number;
+  overlap: number;
+  preserveSentences: boolean;
+}
+```
+
+### SearchConfig
+
+```typescript
+interface SearchConfig {
+  topK: number;
+  minScore: number;
+}
+```
+
+### RetryConfig
+
+```typescript
+interface RetryConfig {
+  maxRetries: number;
+  initialDelay: number;
+  maxDelay: number;
+}
+```
+
+### VectorStoreConfig
+
+```typescript
+interface VectorStoreConfig {
+  baseURL: string;
+  collection: string;
+  cacheConfig?: {
+    maxSize: number;
+    ttl: number;
+  };
+}
+```
+
+### SystemStats
+
+```typescript
+interface SystemStats {
+  totalDocuments: number;
+  totalChunks: number;
+  averageChunksPerDocument: number;
+  lastUpdateTime: Date;
+}
+``` 

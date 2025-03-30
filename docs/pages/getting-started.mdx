@@ -1,0 +1,144 @@
+# Getting Started
+
+This guide will help you get started with Ragify.js. We'll cover installation, basic configuration, and simple usage examples.
+
+## Installation
+
+Install Ragify.js using yarn:
+
+```bash
+yarn add ragify-js
+```
+
+## Basic Configuration
+
+First, you'll need to set up your API keys. Ragify.js supports multiple providers, but let's start with the default configuration using OpenAI and Qdrant:
+
+```typescript
+import { RAGEngine } from "ragify-js";
+
+const rag = new RAGEngine({
+  llmProvider: "openai",
+  embeddingProvider: "openai",
+  embeddingModel: "text-embedding-ada-002",
+  vectorStore: "qdrant",
+  apiKeys: {
+    openai: "your-openai-key",
+    qdrant: "your-qdrant-key"
+  }
+});
+```
+
+## Your First Document
+
+Let's start by ingesting a simple document:
+
+```typescript
+// Create a document
+const document = {
+  id: "doc1",
+  content: "Ragify.js is a powerful RAG library for Node.js and TypeScript.",
+  metadata: {
+    source: "example",
+    author: "Your Name"
+  }
+};
+
+// Ingest the document
+await rag.ingestDocuments([document]);
+```
+
+## Querying Your Documents
+
+Now you can query your documents:
+
+```typescript
+// Query the system
+const results = await rag.query("What is Ragify.js?");
+
+// Process the results
+results.forEach(result => {
+  console.log(`Score: ${result.score}`);
+  console.log(`Context: ${result.context}`);
+  console.log(`Document ID: ${result.documentId}`);
+  console.log("---");
+});
+```
+
+## Progress Tracking
+
+For long-running operations, you can track progress:
+
+```typescript
+const progressTracker = {
+  onProgress: (progress: number, message: string) => {
+    console.log(`Progress: ${progress.toFixed(1)}% - ${message}`);
+  }
+};
+
+// Use progress tracking with document ingestion
+await rag.ingestDocuments([document], progressTracker);
+
+// Use progress tracking with queries
+const results = await rag.query("What is Ragify.js?", progressTracker);
+```
+
+## Advanced Features
+
+### Batch Processing
+
+Ragify.js automatically handles batch processing for large documents:
+
+```typescript
+// Ingest multiple documents
+const documents = [
+  {
+    id: "doc1",
+    content: "First document content...",
+    metadata: { source: "example" }
+  },
+  {
+    id: "doc2",
+    content: "Second document content...",
+    metadata: { source: "example" }
+  }
+];
+
+await rag.ingestDocuments(documents, progressTracker);
+```
+
+### Custom Chunking
+
+You can customize how documents are chunked:
+
+```typescript
+const rag = new RAGEngine({
+  // ... other config
+  chunkingConfig: {
+    maxTokens: 200,
+    overlap: 50,
+    preserveSentences: true
+  }
+});
+```
+
+### Search Configuration
+
+Customize search parameters:
+
+```typescript
+const rag = new RAGEngine({
+  // ... other config
+  searchConfig: {
+    topK: 5,
+    minScore: 0.7
+  }
+});
+```
+
+## Next Steps
+
+- Check out the [API Reference](/api) for detailed documentation
+- Explore [Configuration Options](/configuration) for advanced settings
+- See [Examples](/examples) for more use cases
+- Learn how to [Contribute](/contributing) to Ragify.js 
