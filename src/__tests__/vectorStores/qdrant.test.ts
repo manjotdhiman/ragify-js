@@ -18,7 +18,7 @@ describe("QdrantStore", () => {
       upsert: jest.fn(),
       search: jest.fn(),
       delete: jest.fn(),
-      deleteCollection: jest.fn()
+      deleteCollection: jest.fn(),
     } as unknown as jest.Mocked<QdrantClient>;
 
     (QdrantClient as unknown as jest.Mock).mockImplementation(() => mockClient);
@@ -31,7 +31,7 @@ describe("QdrantStore", () => {
   describe("constructor", () => {
     it("should initialize with provided configuration and create collection if needed", async () => {
       mockClient.getCollections.mockResolvedValueOnce({
-        collections: []
+        collections: [],
       });
 
       mockClient.createCollection.mockResolvedValueOnce(true);
@@ -40,7 +40,7 @@ describe("QdrantStore", () => {
 
       expect(QdrantClient).toHaveBeenCalledWith({
         url: "http://localhost:6333",
-        apiKey: mockApiKey
+        apiKey: mockApiKey,
       });
 
       // Wait for initialization to complete
@@ -50,15 +50,15 @@ describe("QdrantStore", () => {
       expect(mockClient.createCollection).toHaveBeenCalledWith(mockCollection, {
         vectors: {
           size: 1536,
-          distance: "Cosine"
-        }
+          distance: "Cosine",
+        },
       });
       expect(store).toBeDefined();
     });
 
     it("should not create collection if it already exists", async () => {
       mockClient.getCollections.mockResolvedValueOnce({
-        collections: [{ name: mockCollection }]
+        collections: [{ name: mockCollection }],
       });
 
       store = new QdrantStore(mockApiKey, mockCollection);
@@ -76,13 +76,13 @@ describe("QdrantStore", () => {
       {
         id: "1",
         vector: [0.1, 0.2],
-        payload: { text: "test" }
-      }
+        payload: { text: "test" },
+      },
     ];
 
     beforeEach(() => {
       mockClient.getCollections.mockResolvedValue({
-        collections: [{ name: mockCollection }]
+        collections: [{ name: mockCollection }],
       });
       store = new QdrantStore(mockApiKey, mockCollection);
     });
@@ -90,13 +90,13 @@ describe("QdrantStore", () => {
     it("should upsert points successfully", async () => {
       mockClient.upsert.mockResolvedValueOnce({
         operation_id: 1,
-        status: "completed"
+        status: "completed",
       });
 
       await store.upsert(mockPoints);
 
       expect(mockClient.upsert).toHaveBeenCalledWith(mockCollection, {
-        points: mockPoints
+        points: mockPoints,
       });
     });
   });
@@ -106,48 +106,44 @@ describe("QdrantStore", () => {
 
     beforeEach(() => {
       mockClient.getCollections.mockResolvedValue({
-        collections: [{ name: mockCollection }]
+        collections: [{ name: mockCollection }],
       });
       store = new QdrantStore(mockApiKey, mockCollection);
     });
 
     it("should search for similar vectors", async () => {
-      mockClient.search.mockResolvedValueOnce([
+      const mockResults = [
         {
           id: "1",
           version: 1,
           score: 0.9,
           payload: { text: "test" },
-          vector: mockVector
-        }
-      ]);
+        },
+      ];
+
+      mockClient.search.mockResolvedValueOnce(mockResults);
 
       const result = await store.search(mockVector, 10, 0.7);
 
       expect(mockClient.search).toHaveBeenCalledWith(mockCollection, {
         vector: mockVector,
         limit: 10,
-        filter: {
-          must: [
-            {
-              key: "score",
-              range: {
-                gte: 0.7
-              }
-            }
-          ]
-        }
+        score_threshold: 0.7,
       });
-      expect(result).toHaveLength(1);
-      expect(result[0].documentId).toBe("1");
-      expect(result[0].score).toBe(0.9);
+      expect(result).toEqual([
+        {
+          documentId: "1",
+          score: 0.9,
+          metadata: { text: "test" },
+        },
+      ]);
     });
   });
 
   describe("delete", () => {
     beforeEach(() => {
       mockClient.getCollections.mockResolvedValue({
-        collections: [{ name: mockCollection }]
+        collections: [{ name: mockCollection }],
       });
       store = new QdrantStore(mockApiKey, mockCollection);
     });
@@ -155,13 +151,13 @@ describe("QdrantStore", () => {
     it("should delete points by IDs", async () => {
       mockClient.delete.mockResolvedValueOnce({
         operation_id: 1,
-        status: "completed"
+        status: "completed",
       });
 
       await store.delete(["1", "2"]);
 
       expect(mockClient.delete).toHaveBeenCalledWith(mockCollection, {
-        points: ["1", "2"]
+        points: ["1", "2"],
       });
     });
   });
@@ -169,7 +165,7 @@ describe("QdrantStore", () => {
   describe("clear", () => {
     beforeEach(() => {
       mockClient.getCollections.mockResolvedValue({
-        collections: [{ name: mockCollection }]
+        collections: [{ name: mockCollection }],
       });
       store = new QdrantStore(mockApiKey, mockCollection);
     });
@@ -182,4 +178,4 @@ describe("QdrantStore", () => {
       expect(mockClient.deleteCollection).toHaveBeenCalledWith(mockCollection);
     });
   });
-}); 
+});

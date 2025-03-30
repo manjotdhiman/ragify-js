@@ -74,7 +74,7 @@ export interface RAGEngineConfig {
   /** API keys for various services */
   apiKeys: {
     openai: string;
-    qdrant?: string;
+    qdrant: string;
     cohere?: string;
     huggingface?: string;
   };
@@ -93,6 +93,7 @@ export interface RAGEngineConfig {
 export interface QueryResult {
   documentId: string;
   score: number;
+  text: string;
   metadata?: Record<string, unknown>;
 }
 
@@ -114,20 +115,24 @@ export interface Embedder {
 }
 
 export interface VectorStore {
-  upsert(vectors: Array<{
-    id: string;
-    vector: number[];
-    payload?: Record<string, unknown>;
-  }>): Promise<void>;
+  upsert(
+    vectors: Array<{
+      id: string;
+      vector: number[];
+      payload?: Record<string, unknown>;
+    }>
+  ): Promise<void>;
   search(
     queryVector: number[],
     topK: number,
     minScore: number
-  ): Promise<Array<{
-    documentId: string;
-    score: number;
-    metadata?: Record<string, unknown>;
-  }>>;
+  ): Promise<
+    Array<{
+      documentId: string;
+      score: number;
+      metadata?: Record<string, unknown>;
+    }>
+  >;
   delete(ids: string[]): Promise<void>;
   clear(): Promise<void>;
-} 
+}

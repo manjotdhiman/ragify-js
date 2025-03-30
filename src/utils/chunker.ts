@@ -13,7 +13,10 @@ import { ChunkingConfig } from "../types";
 function splitIntoSentences(text: string): string[] {
   // Basic sentence splitting regex that handles common cases
   const sentenceRegex = /[.!?]+[\s\n]+/g;
-  return text.split(sentenceRegex).map(s => s.trim()).filter(Boolean);
+  return text
+    .split(sentenceRegex)
+    .map(s => s.trim())
+    .filter(Boolean);
 }
 
 /**
@@ -80,7 +83,7 @@ export function chunkText(
   } else {
     // Simple word-based chunking without sentence preservation
     const words = splitIntoWords(text);
-    for (let i = 0; i < words.length; i += (maxTokens - overlap)) {
+    for (let i = 0; i < words.length; i += maxTokens - overlap) {
       const chunk = words.slice(i, i + maxTokens);
       chunks.push(joinWords(chunk));
       if (i + maxTokens >= words.length) break;

@@ -108,6 +108,7 @@ Queries the RAG system for relevant information.
 ##### Returns
 
 Promise that resolves to an array of query results:
+
 ```typescript
 interface QueryResult {
   context: string;
@@ -169,6 +170,7 @@ Gets statistics about the system.
 ##### Returns
 
 Promise that resolves to system statistics:
+
 ```typescript
 interface SystemStats {
   totalDocuments: number;
@@ -260,4 +262,4 @@ interface SystemStats {
   averageChunksPerDocument: number;
   lastUpdateTime: Date;
 }
-``` 
+```

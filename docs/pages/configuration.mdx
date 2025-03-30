@@ -13,8 +13,8 @@ const config = {
   vectorStore: "qdrant",
   apiKeys: {
     openai: "your-openai-key",
-    qdrant: "your-qdrant-key"
-  }
+    qdrant: "your-qdrant-key",
+  },
 };
 ```
 
@@ -30,8 +30,8 @@ const config = {
   apiKeys: {
     openai: "your-openai-key",
     cohere: "your-cohere-key", // Optional
-    huggingface: "your-huggingface-key" // Optional
-  }
+    huggingface: "your-huggingface-key", // Optional
+  },
 };
 ```
 
@@ -45,8 +45,8 @@ const config = {
   chunkingConfig: {
     maxTokens: 200, // Maximum tokens per chunk
     overlap: 50, // Number of tokens to overlap between chunks
-    preserveSentences: true // Whether to keep sentences intact
-  }
+    preserveSentences: true, // Whether to keep sentences intact
+  },
 };
 ```
 
@@ -59,8 +59,8 @@ const config = {
   // ... basic config
   searchConfig: {
     topK: 5, // Number of results to return
-    minScore: 0.7 // Minimum similarity score (0-1)
-  }
+    minScore: 0.7, // Minimum similarity score (0-1)
+  },
 };
 ```
 
@@ -74,8 +74,8 @@ const config = {
   retryConfig: {
     maxRetries: 3, // Maximum number of retries
     initialDelay: 1000, // Initial delay in milliseconds
-    maxDelay: 10000 // Maximum delay in milliseconds
-  }
+    maxDelay: 10000, // Maximum delay in milliseconds
+  },
 };
 ```
 
@@ -91,9 +91,9 @@ const config = {
     collection: "ragify", // Collection name
     cacheConfig: {
       maxSize: 1000, // Maximum number of items in cache
-      ttl: 5 * 60 * 1000 // Cache TTL in milliseconds (5 minutes)
-    }
-  }
+      ttl: 5 * 60 * 1000, // Cache TTL in milliseconds (5 minutes)
+    },
+  },
 };
 ```
 
@@ -104,7 +104,7 @@ Control how many chunks are processed concurrently:
 ```typescript
 const config = {
   // ... basic config
-  maxConcurrentChunks: 10 // Maximum number of concurrent chunk operations
+  maxConcurrentChunks: 10, // Maximum number of concurrent chunk operations
 };
 ```
 
@@ -119,8 +119,8 @@ const config = {
   vectorStore: "qdrant",
   apiKeys: {
     openai: "your-openai-key",
-    qdrant: "your-qdrant-key"
-  }
+    qdrant: "your-qdrant-key",
+  },
 };
 ```
 
@@ -134,31 +134,31 @@ const config = {
   vectorStore: "qdrant",
   apiKeys: {
     openai: "your-openai-key",
-    qdrant: "your-qdrant-key"
+    qdrant: "your-qdrant-key",
   },
   chunkingConfig: {
     maxTokens: 200,
     overlap: 50,
-    preserveSentences: true
+    preserveSentences: true,
   },
   searchConfig: {
     topK: 5,
-    minScore: 0.7
+    minScore: 0.7,
   },
   retryConfig: {
     maxRetries: 3,
     initialDelay: 1000,
-    maxDelay: 10000
+    maxDelay: 10000,
   },
   vectorStoreConfig: {
     baseURL: "http://localhost:6333",
     collection: "ragify",
     cacheConfig: {
       maxSize: 1000,
-      ttl: 5 * 60 * 1000
-    }
+      ttl: 5 * 60 * 1000,
+    },
   },
-  maxConcurrentChunks: 10
+  maxConcurrentChunks: 10,
 };
 ```
 
@@ -171,18 +171,18 @@ const config = {
   vectorStore: "qdrant",
   apiKeys: {
     openai: "your-openai-key",
-    qdrant: "your-qdrant-key"
+    qdrant: "your-qdrant-key",
   },
   chunkingConfig: {
     maxTokens: 100, // Smaller chunks for faster processing
     overlap: 20,
-    preserveSentences: true
+    preserveSentences: true,
   },
   searchConfig: {
     topK: 3,
-    minScore: 0.5 // Lower threshold for development
+    minScore: 0.5, // Lower threshold for development
   },
-  maxConcurrentChunks: 5 // Lower concurrency for development
+  maxConcurrentChunks: 5, // Lower concurrency for development
 };
 ```
 
@@ -197,8 +197,8 @@ const config = {
   vectorStore: "qdrant",
   apiKeys: {
     openai: process.env.OPENAI_API_KEY,
-    qdrant: process.env.QDRANT_API_KEY
-  }
+    qdrant: process.env.QDRANT_API_KEY,
+  },
 };
 ```
 
@@ -212,4 +212,4 @@ import { RAGEngineConfig } from "ragify-js";
 const config: RAGEngineConfig = {
   // ... your configuration
 };
-``` 
+```

@@ -15,17 +15,17 @@ yarn add ragify-js
 First, you'll need to set up your API keys. Ragify.js supports multiple providers, but let's start with the default configuration using OpenAI and Qdrant:
 
 ```typescript
-import { RAGEngine } from "ragify-js";
+import { createRAGEngine } from "ragify-js";
 
-const rag = new RAGEngine({
+const rag = createRAGEngine({
   llmProvider: "openai",
   embeddingProvider: "openai",
   embeddingModel: "text-embedding-ada-002",
   vectorStore: "qdrant",
   apiKeys: {
     openai: "your-openai-key",
-    qdrant: "your-qdrant-key"
-  }
+    qdrant: "your-qdrant-key",
+  },
 });
 ```
 
@@ -40,8 +40,8 @@ const document = {
   content: "Ragify.js is a powerful RAG library for Node.js and TypeScript.",
   metadata: {
     source: "example",
-    author: "Your Name"
-  }
+    author: "Your Name",
+  },
 };
 
 // Ingest the document
@@ -73,7 +73,7 @@ For long-running operations, you can track progress:
 const progressTracker = {
   onProgress: (progress: number, message: string) => {
     console.log(`Progress: ${progress.toFixed(1)}% - ${message}`);
-  }
+  },
 };
 
 // Use progress tracking with document ingestion
@@ -95,13 +95,13 @@ const documents = [
   {
     id: "doc1",
     content: "First document content...",
-    metadata: { source: "example" }
+    metadata: { source: "example" },
   },
   {
     id: "doc2",
     content: "Second document content...",
-    metadata: { source: "example" }
-  }
+    metadata: { source: "example" },
+  },
 ];
 
 await rag.ingestDocuments(documents, progressTracker);
@@ -112,13 +112,13 @@ await rag.ingestDocuments(documents, progressTracker);
 You can customize how documents are chunked:
 
 ```typescript
-const rag = new RAGEngine({
+const rag = createRAGEngine({
   // ... other config
   chunkingConfig: {
     maxTokens: 200,
     overlap: 50,
-    preserveSentences: true
-  }
+    preserveSentences: true,
+  },
 });
 ```
 
@@ -127,12 +127,12 @@ const rag = new RAGEngine({
 Customize search parameters:
 
 ```typescript
-const rag = new RAGEngine({
+const rag = createRAGEngine({
   // ... other config
   searchConfig: {
     topK: 5,
-    minScore: 0.7
-  }
+    minScore: 0.7,
+  },
 });
 ```
 
@@ -141,4 +141,4 @@ const rag = new RAGEngine({
 - Check out the [API Reference](/api) for detailed documentation
 - Explore [Configuration Options](/configuration) for advanced settings
 - See [Examples](/examples) for more use cases
-- Learn how to [Contribute](/contributing) to Ragify.js 
+- Learn how to [Contribute](/contributing) to Ragify.js

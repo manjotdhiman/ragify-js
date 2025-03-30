@@ -1,4 +1,3 @@
-export { QdrantStore } from './qdrant';
 import { QdrantStore } from "./qdrant";
 import type { VectorStore } from "../types";
 
@@ -18,10 +17,7 @@ export interface VectorStoreConfig {
 export function createVectorStore(config: VectorStoreConfig): VectorStore {
   switch (config.provider) {
     case "qdrant":
-      return new QdrantStore(
-        config.apiKey,
-        config.collection
-      );
+      return new QdrantStore(config.apiKey, config.collection);
     case "pinecone":
       throw new Error("Pinecone vector store not yet implemented");
     case "milvus":
@@ -29,4 +25,4 @@ export function createVectorStore(config: VectorStoreConfig): VectorStore {
     default:
       throw new Error(`Unsupported vector store provider: ${config.provider}`);
   }
-} 
+}

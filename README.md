@@ -5,22 +5,26 @@ A powerful and flexible Retrieval-Augmented Generation (RAG) library for Node.js
 ## Features
 
 - 🔄 **Multiple Embedding Providers**
+
   - OpenAI (default)
   - Cohere (coming soon)
   - HuggingFace (coming soon)
 
 - 💾 **Multiple Vector Stores**
+
   - Qdrant (default)
   - Pinecone (coming soon)
   - Milvus (coming soon)
 
 - 🚀 **Performance Optimizations**
+
   - Batch processing
   - Caching support
   - Rate limiting
   - Retry logic with exponential backoff
 
 - 📊 **Progress Tracking**
+
   - Real-time progress updates
   - Detailed status messages
   - Optional progress callbacks
@@ -40,35 +44,38 @@ yarn add ragify-js
 ## Quick Start
 
 ```typescript
-import { RAGEngine } from "ragify-js";
+import { createRAGEngine } from "ragify-js";
 
 // Initialize the RAG engine
-const rag = new RAGEngine({
+const rag = createRAGEngine({
   llmProvider: "openai",
   embeddingProvider: "openai",
   embeddingModel: "text-embedding-ada-002",
   vectorStore: "qdrant",
   apiKeys: {
     openai: "your-openai-key",
-    qdrant: "your-qdrant-key"
-  }
+    qdrant: "your-qdrant-key",
+  },
 });
 
 // Add progress tracking
 const progressTracker = {
   onProgress: (progress: number, message: string) => {
     console.log(`Progress: ${progress.toFixed(1)}% - ${message}`);
-  }
+  },
 };
 
 // Ingest documents
-await rag.ingestDocuments([
-  {
-    id: "doc1",
-    content: "Your document content here",
-    metadata: { source: "example" }
-  }
-], progressTracker);
+await rag.ingestDocuments(
+  [
+    {
+      id: "doc1",
+      content: "Your document content here",
+      metadata: { source: "example" },
+    },
+  ],
+  progressTracker
+);
 
 // Query the system
 const results = await rag.query("Your question here", progressTracker);
@@ -86,8 +93,8 @@ const config = {
   vectorStore: "qdrant",
   apiKeys: {
     openai: "your-openai-key",
-    qdrant: "your-qdrant-key"
-  }
+    qdrant: "your-qdrant-key",
+  },
 };
 ```
 
@@ -101,49 +108,88 @@ const config = {
   vectorStore: "qdrant",
   apiKeys: {
     openai: "your-openai-key",
-    qdrant: "your-qdrant-key"
+    qdrant: "your-qdrant-key",
   },
   chunkingConfig: {
     maxTokens: 200,
     overlap: 50,
-    preserveSentences: true
+    preserveSentences: true,
   },
   searchConfig: {
     topK: 5,
-    minScore: 0.7
+    minScore: 0.7,
   },
   retryConfig: {
     maxRetries: 3,
     initialDelay: 1000,
-    maxDelay: 10000
+    maxDelay: 10000,
   },
   vectorStoreConfig: {
     baseURL: "http://localhost:6333",
     collection: "ragify",
     cacheConfig: {
       maxSize: 1000,
-      ttl: 5 * 60 * 1000 // 5 minutes
-    }
+      ttl: 5 * 60 * 1000, // 5 minutes
+    },
   },
-  maxConcurrentChunks: 10
+  maxConcurrentChunks: 10,
 };
 ```
 
 ## API Reference
 
-### RAGEngine
+### createRAGEngine
 
-The main class for interacting with the RAG system.
+The main factory function for creating a RAG engine instance.
 
-#### Constructor
+#### Parameters
 
-```typescript
-constructor(config: RAGEngineConfig)
-```
+- `config`: Configuration object for the RAG engine
+  ```typescript
+  interface RAGEngineConfig {
+    llmProvider: "openai";
+    embeddingProvider: "openai" | "cohere" | "huggingface";
+    embeddingModel?: string;
+    vectorStore: "qdrant" | "pinecone" | "milvus";
+    apiKeys: {
+      openai: string;
+      qdrant: string;
+      cohere?: string;
+      huggingface?: string;
+    };
+    chunkingConfig?: {
+      maxTokens: number;
+      overlap: number;
+      preserveSentences: boolean;
+    };
+    searchConfig?: {
+      topK: number;
+      minScore: number;
+    };
+    retryConfig?: {
+      maxRetries: number;
+      initialDelay: number;
+      maxDelay: number;
+    };
+    vectorStoreConfig?: {
+      baseURL: string;
+      collection: string;
+      cacheConfig?: {
+        maxSize: number;
+        ttl: number;
+      };
+    };
+    maxConcurrentChunks?: number;
+  }
+  ```
 
-#### Methods
+#### Returns
 
-##### ingestDocuments
+A configured RAG engine instance.
+
+### Methods
+
+#### ingestDocuments
 
 ```typescript
 async ingestDocuments(
@@ -154,7 +200,28 @@ async ingestDocuments(
 
 Ingests documents into the RAG system.
 
-##### query
+##### Parameters
+
+- `docs`: Array of documents to ingest
+  ```typescript
+  interface Document {
+    id: string;
+    content: string;
+    metadata?: Record<string, unknown>;
+  }
+  ```
+- `tracker`: Optional progress tracker
+  ```typescript
+  interface ProgressTracker {
+    onProgress: (progress: number, message: string) => void;
+  }
+  ```
+
+##### Returns
+
+Promise that resolves when all documents are ingested.
+
+#### query
 
 ```typescript
 async query(
@@ -165,7 +232,25 @@ async query(
 
 Queries the RAG system for relevant information.
 
-##### deleteDocument
+##### Parameters
+
+- `queryText`: The query text to search for
+- `tracker`: Optional progress tracker
+
+##### Returns
+
+Promise that resolves to an array of query results:
+
+```typescript
+interface QueryResult {
+  context: string;
+  score: number;
+  documentId: string;
+  metadata?: Record<string, unknown>;
+}
+```
+
+#### deleteDocument
 
 ```typescript
 async deleteDocument(
@@ -176,7 +261,7 @@ async deleteDocument(
 
 Deletes a document and all its chunks from the system.
 
-##### clear
+#### clear
 
 ```typescript
 async clear(tracker?: ProgressTracker): Promise<void>
@@ -184,7 +269,7 @@ async clear(tracker?: ProgressTracker): Promise<void>
 
 Clears all documents from the system.
 
-##### getStats
+#### getStats
 
 ```typescript
 async getStats(): Promise<{
@@ -196,37 +281,6 @@ async getStats(): Promise<{
 ```
 
 Gets statistics about the system.
-
-### Types
-
-#### Document
-
-```typescript
-interface Document {
-  id: string;
-  content: string;
-  metadata?: Record<string, unknown>;
-}
-```
-
-#### QueryResult
-
-```typescript
-interface QueryResult {
-  context: string;
-  score: number;
-  documentId: string;
-  metadata?: Record<string, unknown>;
-}
-```
-
-#### ProgressTracker
-
-```typescript
-interface ProgressTracker {
-  onProgress: (progress: number, message: string) => void;
-}
-```
 
 ## Contributing
 

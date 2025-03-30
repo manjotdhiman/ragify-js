@@ -1,6 +1,5 @@
-export { OpenAIEmbedder } from './openai';
-import { OpenAIEmbedder } from "./openai";
 import type { Embedder, EmbeddingConfig } from "../types";
+import { OpenAIEmbedder } from "./openai";
 
 export type { EmbeddingConfig };
 
@@ -15,4 +14,4 @@ export function createEmbedder(config: EmbeddingConfig): Embedder {
     default:
       throw new Error(`Unsupported embedding provider: ${config.provider}`);
   }
-} 
+}

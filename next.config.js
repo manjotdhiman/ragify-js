@@ -3,15 +3,15 @@ const withNextra = require("nextra")({
   themeConfig: "./theme.config.jsx",
   defaultShowCopyCode: true,
   flexsearch: {
-    codeblocks: true
+    codeblocks: true,
   },
-  staticImage: true
+  staticImage: true,
 });
 
 module.exports = withNextra({
   reactStrictMode: true,
   swcMinify: true,
   images: {
-    unoptimized: true
-  }
-}); 
+    unoptimized: true,
+  },
+});

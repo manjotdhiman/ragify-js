@@ -1,189 +1,197 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ragify.js Q&A Demo</title>
     <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-            line-height: 1.6;
-        }
-        .container {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        .section {
-            background: #f5f5f5;
-            padding: 20px;
-            border-radius: 8px;
-        }
-        h1 {
-            color: #333;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        h2 {
-            color: #444;
-            margin-top: 0;
-        }
-        textarea {
-            width: 100%;
-            height: 150px;
-            margin-bottom: 10px;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            resize: vertical;
-        }
-        button {
-            background: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 20px;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        button:hover {
-            background: #0056b3;
-        }
-        .result {
-            margin-top: 20px;
-            padding: 15px;
-            background: white;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        .progress {
-            margin-top: 10px;
-            color: #666;
-        }
-        .error {
-            color: #dc3545;
-            margin-top: 10px;
-        }
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        line-height: 1.6;
+      }
+      .container {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 20px;
+      }
+      .section {
+        background: #f5f5f5;
+        padding: 20px;
+        border-radius: 8px;
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 30px;
+      }
+      h2 {
+        color: #444;
+        margin-top: 0;
+      }
+      textarea {
+        width: 100%;
+        height: 150px;
+        margin-bottom: 10px;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        resize: vertical;
+      }
+      button {
+        background: #007bff;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 16px;
+      }
+      button:hover {
+        background: #0056b3;
+      }
+      .result {
+        margin-top: 20px;
+        padding: 15px;
+        background: white;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .progress {
+        margin-top: 10px;
+        color: #666;
+      }
+      .error {
+        color: #dc3545;
+        margin-top: 10px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Ragify.js Q&A Demo</h1>
     <div class="container">
-        <div class="section">
-            <h2>Add Document</h2>
-            <textarea id="documentContent" placeholder="Enter document content..."></textarea>
-            <textarea id="documentMetadata" placeholder="Enter metadata (optional) as JSON..."></textarea>
-            <button onclick="addDocument()">Add Document</button>
-            <div id="addProgress" class="progress"></div>
-            <div id="addError" class="error"></div>
-        </div>
-        <div class="section">
-            <h2>Ask Question</h2>
-            <textarea id="query" placeholder="Enter your question..."></textarea>
-            <button onclick="askQuestion()">Ask Question</button>
-            <div id="queryProgress" class="progress"></div>
-            <div id="queryError" class="error"></div>
-            <div id="results"></div>
-        </div>
+      <div class="section">
+        <h2>Add Document</h2>
+        <textarea id="documentContent" placeholder="Enter document content..."></textarea>
+        <textarea
+          id="documentMetadata"
+          placeholder="Enter metadata (optional) as JSON..."
+        ></textarea>
+        <button onclick="addDocument()">Add Document</button>
+        <div id="addProgress" class="progress"></div>
+        <div id="addError" class="error"></div>
+      </div>
+      <div class="section">
+        <h2>Ask Question</h2>
+        <textarea id="query" placeholder="Enter your question..."></textarea>
+        <button onclick="askQuestion()">Ask Question</button>
+        <div id="queryProgress" class="progress"></div>
+        <div id="queryError" class="error"></div>
+        <div id="results"></div>
+      </div>
     </div>
 
     <script>
-        const API_URL = "http://localhost:3000";
+      const API_URL = "http://localhost:3000";
 
-        async function addDocument() {
-            const content = document.getElementById("documentContent").value;
-            const metadataText = document.getElementById("documentMetadata").value;
-            const progress = document.getElementById("addProgress");
-            const error = document.getElementById("addError");
+      async function addDocument() {
+        const content = document.getElementById("documentContent").value;
+        const metadataText = document.getElementById("documentMetadata").value;
+        const progress = document.getElementById("addProgress");
+        const error = document.getElementById("addError");
 
-            if (!content) {
-                error.textContent = "Please enter document content";
-                return;
-            }
-
-            try {
-                progress.textContent = "Adding document...";
-                error.textContent = "";
-
-                const metadata = metadataText ? JSON.parse(metadataText) : {};
-
-                const response = await fetch(`${API_URL}/documents`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ content, metadata })
-                });
-
-                const data = await response.json();
-
-                if (!response.ok) {
-                    throw new Error(data.error || "Failed to add document");
-                }
-
-                progress.textContent = "Document added successfully!";
-                document.getElementById("documentContent").value = "";
-                document.getElementById("documentMetadata").value = "";
-            } catch (err) {
-                error.textContent = err.message;
-                progress.textContent = "";
-            }
+        if (!content) {
+          error.textContent = "Please enter document content";
+          return;
         }
 
-        async function askQuestion() {
-            const query = document.getElementById("query").value;
-            const progress = document.getElementById("queryProgress");
-            const error = document.getElementById("queryError");
-            const results = document.getElementById("results");
+        try {
+          progress.textContent = "Adding document...";
+          error.textContent = "";
 
-            if (!query) {
-                error.textContent = "Please enter a question";
-                return;
-            }
+          const metadata = metadataText ? JSON.parse(metadataText) : {};
 
-            try {
-                progress.textContent = "Processing question...";
-                error.textContent = "";
-                results.innerHTML = "";
+          const response = await fetch(`${API_URL}/documents`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ content, metadata }),
+          });
 
-                const response = await fetch(`${API_URL}/query`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json"
-                    },
-                    body: JSON.stringify({ query })
-                });
+          const data = await response.json();
 
-                const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || "Failed to add document");
+          }
 
-                if (!response.ok) {
-                    throw new Error(data.error || "Failed to process question");
-                }
+          progress.textContent = "Document added successfully!";
+          document.getElementById("documentContent").value = "";
+          document.getElementById("documentMetadata").value = "";
+        } catch (err) {
+          error.textContent = err.message;
+          progress.textContent = "";
+        }
+      }
 
-                progress.textContent = "Question processed successfully!";
-                
-                if (data.results.length === 0) {
-                    results.innerHTML = "<p>No relevant answers found.</p>";
-                    return;
-                }
+      async function askQuestion() {
+        const query = document.getElementById("query").value;
+        const progress = document.getElementById("queryProgress");
+        const error = document.getElementById("queryError");
+        const results = document.getElementById("results");
 
-                const resultsHtml = data.results.map(result => `
+        if (!query) {
+          error.textContent = "Please enter a question";
+          return;
+        }
+
+        try {
+          progress.textContent = "Processing question...";
+          error.textContent = "";
+          results.innerHTML = "";
+
+          const response = await fetch(`${API_URL}/query`, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({ query }),
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            throw new Error(data.error || "Failed to process question");
+          }
+
+          progress.textContent = "Question processed successfully!";
+
+          if (data.results.length === 0) {
+            results.innerHTML = "<p>No relevant answers found.</p>";
+            return;
+          }
+
+          const resultsHtml = data.results
+            .map(
+              result => `
                     <div class="result">
                         <p><strong>Answer:</strong> ${result.answer}</p>
                         <p><strong>Confidence:</strong> ${(result.confidence * 100).toFixed(1)}%</p>
                         ${result.metadata ? `<p><strong>Metadata:</strong> ${JSON.stringify(result.metadata)}</p>` : ""}
                     </div>
-                `).join("");
+                `
+            )
+            .join("");
 
-                results.innerHTML = resultsHtml;
-            } catch (err) {
-                error.textContent = err.message;
-                progress.textContent = "";
-            }
+          results.innerHTML = resultsHtml;
+        } catch (err) {
+          error.textContent = err.message;
+          progress.textContent = "";
         }
+      }
     </script>
-</body>
-</html> 
+  </body>
+</html>

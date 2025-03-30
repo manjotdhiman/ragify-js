@@ -1,104 +1,134 @@
 import { QdrantClient } from "@qdrant/js-client-rest";
-import type { VectorStore, VectorStoreConfig } from "../types";
+import type { VectorStore } from "../types";
 
+/**
+ * Qdrant Vector Store
+ * Implements the VectorStore interface for Qdrant
+ */
 export class QdrantStore implements VectorStore {
   private client: QdrantClient;
-  private collection: string;
+  private readonly collectionName: string;
 
-  constructor(apiKey: string, collection: string = "documents") {
+  constructor(apiKey: string, collectionName: string = "documents") {
+    if (!apiKey) {
+      throw new Error("Qdrant API key is required");
+    }
+
     this.client = new QdrantClient({
       url: "http://localhost:6333",
-      apiKey
+      apiKey,
     });
-    this.collection = collection;
+
+    this.collectionName = collectionName;
     this.initializeCollection();
   }
 
+  /**
+   * Initialize the collection if it doesn't exist
+   */
   private async initializeCollection(): Promise<void> {
     try {
-      console.log("initializing collection");
       const collections = await this.client.getCollections();
-      console.log("collections", collections);
+      const exists = collections.collections.some(c => c.name === this.collectionName);
 
-      if (!collections?.collections?.some(c => c.name === this.collection)) {
-        await this.client.createCollection(this.collection, {
+      if (!exists) {
+        await this.client.createCollection(this.collectionName, {
           vectors: {
-            size: 1536,
-            distance: "Cosine"
-          }
+            size: 1536, // OpenAI ada-002 embedding size
+            distance: "Cosine",
+          },
         });
       }
     } catch (error) {
-      console.error("Failed to initialize collection:", error);
-      throw error;
+      if (error instanceof Error) {
+        throw new Error(`Failed to initialize Qdrant collection: ${error.message}`);
+      }
+      throw new Error("Failed to initialize Qdrant collection");
     }
   }
 
-  async upsert(points: { id: string; vector: number[]; payload: Record<string, unknown> }[]): Promise<void> {
+  /**
+   * Upsert vectors into the store
+   */
+  async upsert(
+    vectors: Array<{
+      id: string;
+      vector: number[];
+      payload?: Record<string, unknown>;
+    }>
+  ): Promise<void> {
     try {
-      await this.client.upsert(this.collection, {
-        points: points.map(point => ({
-          id: point.id,
-          vector: point.vector,
-          payload: point.payload
-        }))
+      await this.client.upsert(this.collectionName, {
+        points: vectors.map(v => ({
+          id: v.id,
+          vector: v.vector,
+          payload: v.payload,
+        })),
       });
     } catch (error) {
-      console.error("Failed to upsert points:", error);
-      throw error;
+      if (error instanceof Error) {
+        throw new Error(`Failed to upsert vectors: ${error.message}`);
+      }
+      throw new Error("Failed to upsert vectors");
     }
   }
 
+  /**
+   * Search for similar vectors
+   */
   async search(
-    vector: number[],
-    limit: number = 5,
-    minScore: number = 0.7
-  ): Promise<{ documentId: string; score: number; metadata: Record<string, unknown> }[]> {
+    queryVector: number[],
+    topK: number,
+    minScore: number
+  ): Promise<Array<{ documentId: string; score: number; metadata?: Record<string, unknown> }>> {
     try {
-      const results = await this.client.search(this.collection, {
-        vector,
-        limit,
-        filter: {
-          must: [
-            {
-              key: "score",
-              range: {
-                gte: minScore
-              }
-            }
-          ]
-        }
+      const results = await this.client.search(this.collectionName, {
+        vector: queryVector,
+        limit: topK,
+        score_threshold: minScore,
       });
 
       return results.map(result => ({
         documentId: String(result.id),
         score: result.score,
-        metadata: result.payload as Record<string, unknown>
+        metadata: result.payload as Record<string, unknown>,
       }));
     } catch (error) {
-      console.error("Failed to search vectors:", error);
-      throw error;
+      if (error instanceof Error) {
+        throw new Error(`Failed to search vectors: ${error.message}`);
+      }
+      throw new Error("Failed to search vectors");
     }
   }
 
+  /**
+   * Delete vectors by IDs
+   */
   async delete(ids: string[]): Promise<void> {
     try {
-      await this.client.delete(this.collection, {
-        points: ids
+      await this.client.delete(this.collectionName, {
+        points: ids,
       });
     } catch (error) {
-      console.error("Failed to delete points:", error);
-      throw error;
+      if (error instanceof Error) {
+        throw new Error(`Failed to delete vectors: ${error.message}`);
+      }
+      throw new Error("Failed to delete vectors");
     }
   }
 
+  /**
+   * Clear all vectors from the store
+   */
   async clear(): Promise<void> {
     try {
-      await this.client.deleteCollection(this.collection);
+      await this.client.deleteCollection(this.collectionName);
       await this.initializeCollection();
     } catch (error) {
-      console.error("Failed to clear collection:", error);
-      throw error;
+      if (error instanceof Error) {
+        throw new Error(`Failed to clear vectors: ${error.message}`);
+      }
+      throw new Error("Failed to clear vectors");
     }
   }
 }

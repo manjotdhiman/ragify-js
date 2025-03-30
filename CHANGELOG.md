@@ -8,6 +8,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+
 - Factory pattern for embedding providers and vector stores
 - Batch processing for document ingestion and queries
 - Progress tracking for long-running operations
@@ -19,6 +20,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Example code and usage documentation
 
 ### Changed
+
 - Improved error handling and type safety
 - Enhanced configuration options
 - Optimized chunk processing
@@ -26,18 +28,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - More efficient vector store operations
 
 ### Fixed
+
 - Type safety issues in batch processing
 - Memory leaks in long-running operations
 - Error handling in edge cases
 - Rate limiting edge cases
 
 ### Removed
+
 - Legacy configuration options
 - Deprecated API methods
 
 ## [0.1.0] - 2024-03-21
 
 ### Added
+
 - Initial release
 - Basic RAG functionality
 - OpenAI embeddings support
@@ -48,10 +53,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - TypeScript support
 
 ### Changed
+
 - None (initial release)
 
 ### Fixed
+
 - None (initial release)
 
 ### Removed
-- None (initial release) 
+
+- None (initial release)

@@ -1,3 +1,12 @@
 export { RAGEngine } from "./engine";
-export type { RAGEngineConfig } from "./types";
-export type { Document, QueryResult, ProgressTracker } from "./types";
+export { createEmbedder } from "./embeddings";
+export { createVectorStore } from "./vectorStores";
+export { createRAGEngine } from "./factory";
+export type {
+  RAGEngineConfig,
+  Document,
+  QueryResult,
+  ProgressTracker,
+  EmbeddingProvider,
+  VectorStoreProvider,
+} from "./types";

@@ -7,17 +7,17 @@ This page provides various examples of using Ragify.js in different scenarios.
 ### Simple Document Ingestion and Querying
 
 ```typescript
-import { RAGEngine } from "ragify-js";
+import { createRAGEngine } from "ragify-js";
 
 // Initialize the RAG engine
-const rag = new RAGEngine({
+const rag = createRAGEngine({
   llmProvider: "openai",
   embeddingProvider: "openai",
   vectorStore: "qdrant",
   apiKeys: {
     openai: "your-openai-key",
-    qdrant: "your-qdrant-key"
-  }
+    qdrant: "your-qdrant-key",
+  },
 });
 
 // Ingest a document
@@ -25,8 +25,8 @@ await rag.ingestDocuments([
   {
     id: "doc1",
     content: "Ragify.js is a powerful RAG library for Node.js and TypeScript.",
-    metadata: { source: "example" }
-  }
+    metadata: { source: "example" },
+  },
 ]);
 
 // Query the document
@@ -40,7 +40,7 @@ console.log(results);
 const progressTracker = {
   onProgress: (progress: number, message: string) => {
     console.log(`Progress: ${progress.toFixed(1)}% - ${message}`);
-  }
+  },
 };
 
 // Use with document ingestion
@@ -60,13 +60,13 @@ const documents = [
   {
     id: "doc1",
     content: "First document content...",
-    metadata: { source: "example" }
+    metadata: { source: "example" },
   },
   {
     id: "doc2",
     content: "Second document content...",
-    metadata: { source: "example" }
-  }
+    metadata: { source: "example" },
+  },
 ];
 
 await rag.ingestDocuments(documents, progressTracker);
@@ -75,25 +75,25 @@ await rag.ingestDocuments(documents, progressTracker);
 ### Custom Chunking Strategy
 
 ```typescript
-const rag = new RAGEngine({
+const rag = createRAGEngine({
   // ... other config
   chunkingConfig: {
     maxTokens: 200,
     overlap: 50,
-    preserveSentences: true
-  }
+    preserveSentences: true,
+  },
 });
 ```
 
 ### Advanced Search Configuration
 
 ```typescript
-const rag = new RAGEngine({
+const rag = createRAGEngine({
   // ... other config
   searchConfig: {
     topK: 5,
-    minScore: 0.7
-  }
+    minScore: 0.7,
+  },
 });
 ```
 
@@ -102,20 +102,20 @@ const rag = new RAGEngine({
 ### Document Q&A System
 
 ```typescript
-import { RAGEngine } from "ragify-js";
+import { createRAGEngine } from "ragify-js";
 
 class DocumentQASystem {
-  private rag: RAGEngine;
+  private rag: ReturnType<typeof createRAGEngine>;
 
   constructor() {
-    this.rag = new RAGEngine({
+    this.rag = createRAGEngine({
       llmProvider: "openai",
       embeddingProvider: "openai",
       vectorStore: "qdrant",
       apiKeys: {
-        openai: process.env.OPENAI_API_KEY,
-        qdrant: process.env.QDRANT_API_KEY
-      }
+        openai: process.env.OPENAI_API_KEY || "",
+        qdrant: process.env.QDRANT_API_KEY || "",
+      },
     });
   }
 
@@ -124,8 +124,8 @@ class DocumentQASystem {
       {
         id: `doc-${Date.now()}`,
         content,
-        metadata
-      }
+        metadata,
+      },
     ]);
   }
 
@@ -134,7 +134,7 @@ class DocumentQASystem {
     return results.map(result => ({
       answer: result.context,
       confidence: result.score,
-      source: result.metadata?.source
+      source: result.metadata?.source,
     }));
   }
 }
@@ -148,24 +148,24 @@ const answers = await qa.askQuestion("Your question");
 ### Content Recommendation System
 
 ```typescript
-import { RAGEngine } from "ragify-js";
+import { createRAGEngine } from "ragify-js";
 
 class ContentRecommender {
-  private rag: RAGEngine;
+  private rag: ReturnType<typeof createRAGEngine>;
 
   constructor() {
-    this.rag = new RAGEngine({
+    this.rag = createRAGEngine({
       llmProvider: "openai",
       embeddingProvider: "openai",
       vectorStore: "qdrant",
       apiKeys: {
-        openai: process.env.OPENAI_API_KEY,
-        qdrant: process.env.QDRANT_API_KEY
+        openai: process.env.OPENAI_API_KEY || "",
+        qdrant: process.env.QDRANT_API_KEY || "",
       },
       searchConfig: {
         topK: 10,
-        minScore: 0.6
-      }
+        minScore: 0.6,
+      },
     });
   }
 
@@ -174,8 +174,8 @@ class ContentRecommender {
       {
         id: `content-${Date.now()}`,
         content,
-        metadata
-      }
+        metadata,
+      },
     ]);
   }
 
@@ -184,7 +184,7 @@ class ContentRecommender {
     return results.map(result => ({
       content: result.context,
       relevance: result.score,
-      metadata: result.metadata
+      metadata: result.metadata,
     }));
   }
 }
@@ -198,25 +198,25 @@ const recommendations = await recommender.getRecommendations("User interests");
 ### Knowledge Base Search
 
 ```typescript
-import { RAGEngine } from "ragify-js";
+import { createRAGEngine } from "ragify-js";
 
 class KnowledgeBase {
-  private rag: RAGEngine;
+  private rag: ReturnType<typeof createRAGEngine>;
 
   constructor() {
-    this.rag = new RAGEngine({
+    this.rag = createRAGEngine({
       llmProvider: "openai",
       embeddingProvider: "openai",
       vectorStore: "qdrant",
       apiKeys: {
-        openai: process.env.OPENAI_API_KEY,
-        qdrant: process.env.QDRANT_API_KEY
+        openai: process.env.OPENAI_API_KEY || "",
+        qdrant: process.env.QDRANT_API_KEY || "",
       },
       chunkingConfig: {
         maxTokens: 300,
         overlap: 100,
-        preserveSentences: true
-      }
+        preserveSentences: true,
+      },
     });
   }
 
@@ -225,15 +225,18 @@ class KnowledgeBase {
       {
         id: `article-${Date.now()}`,
         content,
-        metadata
-      }
+        metadata,
+      },
     ]);
   }
 
-  async search(query: string, options: {
-    minScore?: number;
-    maxResults?: number;
-  } = {}) {
+  async search(
+    query: string,
+    options: {
+      minScore?: number;
+      maxResults?: number;
+    } = {}
+  ) {
     const results = await this.rag.query(query);
     return results
       .filter(result => result.score >= (options.minScore ?? 0.7))
@@ -242,7 +245,7 @@ class KnowledgeBase {
         excerpt: result.context,
         relevance: result.score,
         articleId: result.documentId,
-        metadata: result.metadata
+        metadata: result.metadata,
       }));
   }
 }
@@ -252,7 +255,7 @@ const kb = new KnowledgeBase();
 await kb.addArticle("Article content", { category: "example" });
 const searchResults = await kb.search("Search query", {
   minScore: 0.8,
-  maxResults: 3
+  maxResults: 3,
 });
 ```
 
@@ -271,13 +274,13 @@ try {
 ### Retry Logic
 
 ```typescript
-const rag = new RAGEngine({
+const rag = createRAGEngine({
   // ... other config
   retryConfig: {
     maxRetries: 3,
     initialDelay: 1000,
-    maxDelay: 10000
-  }
+    maxDelay: 10000,
+  },
 });
 ```
 
@@ -287,13 +290,12 @@ const rag = new RAGEngine({
 const progressTracker = {
   onProgress: (progress: number, message: string) => {
     console.log(`Progress: ${progress.toFixed(1)}% - ${message}`);
-  }
+  },
 };
 
 try {
   await rag.ingestDocuments([document], progressTracker);
 } catch (error) {
   console.error("Failed to ingest document:", error);
-  // Handle error appropriately
 }
-``` 
+```

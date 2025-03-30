@@ -5,22 +5,26 @@ A powerful and flexible Retrieval-Augmented Generation (RAG) library for Node.js
 ## Features
 
 - 🔄 **Multiple Embedding Providers**
+
   - OpenAI (default)
   - Cohere (coming soon)
   - HuggingFace (coming soon)
 
 - 💾 **Multiple Vector Stores**
+
   - Qdrant (default)
   - Pinecone (coming soon)
   - Milvus (coming soon)
 
 - 🚀 **Performance Optimizations**
+
   - Batch processing
   - Caching support
   - Rate limiting
   - Retry logic with exponential backoff
 
 - 📊 **Progress Tracking**
+
   - Real-time progress updates
   - Detailed status messages
   - Optional progress callbacks
@@ -38,38 +42,29 @@ yarn add ragify-js
 ```
 
 ```typescript
-import { RAGEngine } from "ragify-js";
+import { createRAGEngine } from "ragify-js";
 
-// Initialize the RAG engine
-const rag = new RAGEngine({
+const rag = createRAGEngine({
   llmProvider: "openai",
   embeddingProvider: "openai",
-  embeddingModel: "text-embedding-ada-002",
   vectorStore: "qdrant",
   apiKeys: {
     openai: "your-openai-key",
-    qdrant: "your-qdrant-key"
-  }
+    qdrant: "your-qdrant-key",
+  },
 });
-
-// Add progress tracking
-const progressTracker = {
-  onProgress: (progress: number, message: string) => {
-    console.log(`Progress: ${progress.toFixed(1)}% - ${message}`);
-  }
-};
 
 // Ingest documents
 await rag.ingestDocuments([
   {
     id: "doc1",
-    content: "Your document content here",
-    metadata: { source: "example" }
-  }
-], progressTracker);
+    text: "This is a test document",
+    metadata: { source: "example" },
+  },
+]);
 
-// Query the system
-const results = await rag.query("Your question here", progressTracker);
+// Query the documents
+const results = await rag.query("What is this document about?", 5, 0.7);
 console.log(results);
 ```
 
@@ -95,4 +90,4 @@ Ragify.js is designed to be:
 
 - [GitHub Issues](https://github.com/yourusername/ragify-js/issues)
 - [Discussions](https://github.com/yourusername/ragify-js/discussions)
-- [Stack Overflow](https://stackoverflow.com/questions/tagged/ragify-js) 
+- [Stack Overflow](https://stackoverflow.com/questions/tagged/ragify-js)

@@ -1,137 +1,129 @@
-import OpenAI from "openai";
 import type { Embedder } from "../types";
 
-interface OpenAIEmbeddingResponse {
-  data: Array<{
-    embedding: number[];
-    index: number;
-    object: string;
-  }>;
-  model: string;
-  usage: {
-    prompt_tokens: number;
-    total_tokens: number;
-  };
-}
-
-interface OpenAIErrorResponse {
-  error: {
-    message: string;
-    type: string;
-    code: string;
-    param: string | null;
-  };
-}
-
-interface RetryConfig {
-  maxRetries: number;
-  initialDelay: number;
-  maxDelay: number;
-}
-
 /**
- * OpenAI Embedding Provider
+ * OpenAI Embedder
  * Implements the Embedder interface for OpenAI's embedding API
  */
 export class OpenAIEmbedder implements Embedder {
-  private client: OpenAI;
-  private readonly model: string = "text-embedding-ada-002";
-  private readonly baseURL: string = "https://api.openai.com/v1";
-  private readonly retryConfig: RetryConfig;
-  private lastRequestTime: number = 0;
-  private readonly minRequestInterval: number = 1000; // 1 second between requests
+  private readonly apiKey: string;
+  private readonly model: string;
+  private readonly retryConfig: {
+    maxRetries: number;
+    initialDelayMs: number;
+    maxDelayMs: number;
+    backoffFactor: number;
+  };
 
-  constructor(apiKey: string, model: string = "text-embedding-ada-002", retryConfig: Partial<RetryConfig> = {}) {
+  constructor(
+    apiKey: string,
+    model = "text-embedding-ada-002",
+    retryConfig = {
+      maxRetries: 3,
+      initialDelayMs: 1000,
+      maxDelayMs: 10000,
+      backoffFactor: 2,
+    }
+  ) {
     if (!apiKey) {
       throw new Error("OpenAI API key is required");
     }
 
-    this.client = new OpenAI({
-      apiKey
-    });
-
-    this.retryConfig = {
-      maxRetries: retryConfig.maxRetries ?? 3,
-      initialDelay: retryConfig.initialDelay ?? 1000,
-      maxDelay: retryConfig.maxDelay ?? 10000
-    };
-  }
-
-  /**
-   * Wait for rate limiting
-   */
-  private async waitForRateLimit(): Promise<void> {
-    const now = Date.now();
-    const timeSinceLastRequest = now - this.lastRequestTime;
-    if (timeSinceLastRequest < this.minRequestInterval) {
-      await new Promise(resolve => setTimeout(resolve, this.minRequestInterval - timeSinceLastRequest));
-    }
-    this.lastRequestTime = Date.now();
-  }
-
-  /**
-   * Exponential backoff retry logic
-   */
-  private async retryWithBackoff<T>(
-    operation: () => Promise<T>,
-    retryCount: number = 0
-  ): Promise<T> {
-    try {
-      return await operation();
-    } catch (error) {
-      if (retryCount >= this.retryConfig.maxRetries) {
-        if (error instanceof Error) {
-          const errorMessage = error.message.includes("data") 
-            ? "API Error" 
-            : error.message;
-          throw new Error(`OpenAI API error: ${errorMessage}`);
-        }
-        throw new Error(`Unexpected error: ${String(error)}`);
-      }
-
-      const delay = Math.min(
-        this.retryConfig.initialDelay * Math.pow(2, retryCount),
-        this.retryConfig.maxDelay
-      );
-
-      await new Promise(resolve => setTimeout(resolve, delay));
-      return this.retryWithBackoff(operation, retryCount + 1);
-    }
+    this.apiKey = apiKey;
+    this.model = model;
+    this.retryConfig = retryConfig;
   }
 
   /**
    * Generate embeddings for a single text input
-   * @param text - The text to generate embeddings for
-   * @returns Promise containing the embedding vector
-   * @throws Error if the API request fails
    */
   async embed(text: string): Promise<number[]> {
-    return this.retryWithBackoff(async () => {
-      await this.waitForRateLimit();
-      const response = await this.client.embeddings.create({
-        model: this.model,
-        input: text
+    try {
+      const response = await this.retryWithBackoff(async () => {
+        const result = await fetch("https://api.openai.com/v1/embeddings", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.apiKey}`,
+          },
+          body: JSON.stringify({
+            input: text,
+            model: this.model,
+          }),
+        });
+
+        if (!result.ok) {
+          throw new Error(`OpenAI API error: ${result.statusText}`);
+        }
+
+        const data = await result.json();
+        return data.data[0].embedding;
       });
 
-      return response.data[0].embedding;
-    });
+      return response;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to generate embedding: ${error.message}`);
+      }
+      throw new Error("Failed to generate embedding");
+    }
   }
 
   /**
-   * Generate embeddings for multiple texts in parallel
-   * @param texts - Array of texts to generate embeddings for
-   * @returns Promise containing array of embedding vectors
-   * @throws Error if the API request fails
+   * Generate embeddings for multiple text inputs
    */
   async embedBatch(texts: string[]): Promise<number[][]> {
-    return this.retryWithBackoff(async () => {
-      await this.waitForRateLimit();
-      const response = await this.client.embeddings.create({
-        model: this.model,
-        input: texts
+    try {
+      const response = await this.retryWithBackoff(async () => {
+        const result = await fetch("https://api.openai.com/v1/embeddings", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${this.apiKey}`,
+          },
+          body: JSON.stringify({
+            input: texts,
+            model: this.model,
+          }),
+        });
+
+        if (!result.ok) {
+          throw new Error(`OpenAI API error: ${result.statusText}`);
+        }
+
+        const data = await result.json();
+        return data.data.map((item: { embedding: number[] }) => item.embedding);
       });
 
-      return response.data.map(item => item.embedding);
-    });
+      return response;
+    } catch (error) {
+      if (error instanceof Error) {
+        throw new Error(`Failed to generate embeddings: ${error.message}`);
+      }
+      throw new Error("Failed to generate embeddings");
+    }
+  }
+
+  /**
+   * Retry a function with exponential backoff
+   */
+  private async retryWithBackoff<T>(fn: () => Promise<T>): Promise<T> {
+    let delay = this.retryConfig.initialDelayMs;
+    let attempt = 0;
+
+    while (attempt < this.retryConfig.maxRetries) {
+      try {
+        return await fn();
+      } catch (error) {
+        attempt++;
+        if (attempt === this.retryConfig.maxRetries) {
+          throw error;
+        }
+
+        await new Promise(resolve => setTimeout(resolve, delay));
+        delay = Math.min(delay * this.retryConfig.backoffFactor, this.retryConfig.maxDelayMs);
+      }
+    }
+
+    throw new Error("Max retries exceeded");
   }
 }

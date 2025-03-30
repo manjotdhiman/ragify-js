@@ -57,16 +57,19 @@ Thank you for your interest in contributing to Ragify.js! This document provides
 ## Pull Request Process
 
 1. Create a new branch for your feature:
+
    ```bash
    git checkout -b feature/your-feature-name
    ```
 
 2. Make your changes and commit them:
+
    ```bash
    git commit -m "feat: description of your changes"
    ```
 
 3. Push to your fork:
+
    ```bash
    git push origin feature/your-feature-name
    ```
@@ -76,6 +79,7 @@ Thank you for your interest in contributing to Ragify.js! This document provides
 ### Commit Messages
 
 Follow the conventional commits format:
+
 - `feat:` for new features
 - `fix:` for bug fixes
 - `docs:` for documentation changes
@@ -85,6 +89,7 @@ Follow the conventional commits format:
 - `chore:` for maintenance tasks
 
 Example:
+
 ```bash
 git commit -m "feat: add support for Cohere embeddings"
 ```
@@ -140,4 +145,4 @@ git commit -m "feat: add support for Cohere embeddings"
 
 ## License
 
-By contributing, you agree that your contributions will be licensed under the MIT License. 
+By contributing, you agree that your contributions will be licensed under the MIT License.
