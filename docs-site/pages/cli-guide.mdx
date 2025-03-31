@@ -1,0 +1,185 @@
+# CLI Guide
+
+Ragify.js provides a powerful command-line interface for quick operations.
+
+## Installation
+
+```bash
+# Install globally
+yarn global add ragify-js
+
+# Or use npx
+npx ragify-js
+```
+
+## Commands
+
+### `ingest`
+
+Ingest documents into the vector store.
+
+```bash
+# Basic usage
+npx ragify-js ingest file1.txt file2.txt
+
+# With options
+npx ragify-js ingest file1.txt file2.txt \
+  --collection my-docs \
+  --chunk-size 1000 \
+  --chunk-overlap 200 \
+  --metadata '{"source": "example"}'
+```
+
+#### Options
+
+- `--collection, -c`: Collection name (default: "default")
+- `--chunk-size`: Size of text chunks (default: 1000)
+- `--chunk-overlap`: Overlap between chunks (default: 200)
+- `--metadata`: JSON string of metadata to attach
+- `--recursive, -r`: Recursively process directories
+- `--exclude`: Glob pattern to exclude files
+- `--include`: Glob pattern to include files
+
+### `query`
+
+Query the vector store.
+
+```bash
+# Basic usage
+npx ragify-js query "Your question here"
+
+# With options
+npx ragify-js query "Your question here" \
+  --collection my-docs \
+  --top-k 5 \
+  --threshold 0.7 \
+  --metadata '{"source": "example"}'
+```
+
+#### Options
+
+- `--collection, -c`: Collection name (default: "default")
+- `--top-k, -k`: Number of results to return (default: 5)
+- `--threshold`: Similarity threshold (default: 0.7)
+- `--metadata`: JSON string of metadata to filter by
+- `--output, -o`: Output format (json, text, table)
+
+### `init`
+
+Initialize a new collection.
+
+```bash
+# Basic usage
+npx ragify-js init
+
+# With options
+npx ragify-js init \
+  --collection my-docs \
+  --dimension 1536 \
+  --distance cosine
+```
+
+#### Options
+
+- `--collection, -c`: Collection name (default: "default")
+- `--dimension`: Vector dimension (default: 1536)
+- `--distance`: Distance metric (cosine, euclid, dot, manhattan)
+
+### `delete`
+
+Delete a collection.
+
+```bash
+# Basic usage
+npx ragify-js delete
+
+# With options
+npx ragify-js delete --collection my-docs
+```
+
+#### Options
+
+- `--collection, -c`: Collection name (default: "default")
+
+### `list`
+
+List all collections.
+
+```bash
+npx ragify-js list
+```
+
+### `info`
+
+Show collection information.
+
+```bash
+# Basic usage
+npx ragify-js info
+
+# With options
+npx ragify-js info --collection my-docs
+```
+
+#### Options
+
+- `--collection, -c`: Collection name (default: "default")
+
+## Environment Variables
+
+The CLI uses the following environment variables:
+
+```bash
+# OpenAI API key
+OPENAI_API_KEY=your-openai-api-key
+
+# Qdrant API key
+QDRANT_API_KEY=your-qdrant-api-key
+
+# Qdrant URL (optional)
+QDRANT_URL=http://localhost:6333
+```
+
+## Examples
+
+### Ingesting Multiple Files
+
+```bash
+# Ingest all markdown files in a directory
+npx ragify-js ingest docs/*.md \
+  --collection documentation \
+  --metadata '{"type": "docs"}'
+
+# Ingest all files recursively
+npx ragify-js ingest . \
+  --recursive \
+  --exclude "node_modules/**" \
+  --include "*.{md,txt}"
+```
+
+### Querying with Filters
+
+```bash
+# Query with metadata filter
+npx ragify-js query "How do I use the CLI?" \
+  --collection documentation \
+  --metadata '{"type": "docs"}'
+
+# Query with custom threshold
+npx ragify-js query "What is RAG?" \
+  --threshold 0.8 \
+  --output json
+```
+
+### Managing Collections
+
+```bash
+# Create a new collection
+npx ragify-js init --collection research
+
+# List all collections
+npx ragify-js list
+
+# Delete a collection
+npx ragify-js delete --collection research
+``` 

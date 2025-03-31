@@ -1,0 +1,208 @@
+# API Reference
+
+This page provides detailed documentation for the Ragify.js API.
+
+## Core Classes
+
+### Ragify
+
+The main class for interacting with the RAG system.
+
+```typescript
+class Ragify {
+  constructor(config: RagifyConfig);
+  initialize(): Promise<void>;
+  ingest(doc: Document | string, options?: IngestOptions): Promise<void>;
+  query(query: string, options?: QueryOptions): Promise<QueryResult[]>;
+}
+```
+
+#### Constructor
+
+```typescript
+interface RagifyConfig {
+  embeddingProvider: EmbeddingProvider;
+  collectionName?: string;
+  qdrantUrl?: string;
+  qdrantApiKey?: string;
+  chunkingConfig?: ChunkingConfig;
+}
+```
+
+#### Methods
+
+##### `initialize()`
+
+Initializes the vector store collection.
+
+```typescript
+await ragify.initialize();
+```
+
+##### `ingest()`
+
+Ingests a document into the vector store.
+
+```typescript
+interface Document {
+  text: string;
+  metadata?: Record<string, unknown>;
+}
+
+interface IngestOptions {
+  chunkSize?: number;
+  chunkOverlap?: number;
+}
+
+await ragify.ingest({
+  text: "Your document text...",
+  metadata: { source: "example" }
+});
+```
+
+##### `query()`
+
+Queries the vector store for similar documents.
+
+```typescript
+interface QueryOptions {
+  topK?: number;
+  threshold?: number;
+  metadata?: Record<string, unknown>;
+}
+
+interface QueryResult {
+  text: string;
+  metadata?: Record<string, unknown>;
+  score: number;
+}
+
+const results = await ragify.query("Your query here", {
+  topK: 5,
+  threshold: 0.7
+});
+```
+
+## Embedding Providers
+
+### OpenAIEmbeddings
+
+```typescript
+interface OpenAIEmbeddingsConfig {
+  apiKey: string;
+  model?: "text-embedding-3-small" | "text-embedding-3-large" | "text-embedding-ada-002";
+  batchSize?: number;
+}
+
+class OpenAIEmbeddings implements EmbeddingProvider {
+  constructor(config: OpenAIEmbeddingsConfig);
+  generateEmbeddings(texts: string[]): Promise<number[][]>;
+  getDimension(): Promise<number>;
+}
+```
+
+## Vector Store
+
+### QdrantVectorStore
+
+```typescript
+interface QdrantConfig {
+  url?: string;
+  apiKey?: string;
+  collectionName?: string;
+  distance?: "Cosine" | "Euclid" | "Dot" | "Manhattan";
+}
+
+class QdrantVectorStore implements VectorStore {
+  constructor(config: QdrantConfig);
+  initialize(): Promise<void>;
+  upsert(vectors: Vector[]): Promise<void>;
+  search(query: number[], options: SearchOptions): Promise<SearchResult[]>;
+}
+```
+
+## Types
+
+### Document
+
+```typescript
+interface Document {
+  text: string;
+  metadata?: Record<string, unknown>;
+}
+```
+
+### Chunk
+
+```typescript
+interface Chunk {
+  text: string;
+  metadata?: Record<string, unknown>;
+  embedding?: number[];
+}
+```
+
+### Vector
+
+```typescript
+interface Vector {
+  id: string;
+  vector: number[];
+  payload?: Record<string, unknown>;
+}
+```
+
+### SearchOptions
+
+```typescript
+interface SearchOptions {
+  topK?: number;
+  threshold?: number;
+  filter?: Record<string, unknown>;
+}
+```
+
+### SearchResult
+
+```typescript
+interface SearchResult {
+  id: string;
+  score: number;
+  payload?: Record<string, unknown>;
+}
+```
+
+## Error Handling
+
+Ragify.js uses custom error classes for better error handling:
+
+```typescript
+class RagifyError extends Error {
+  constructor(message: string);
+}
+
+class EmbeddingError extends RagifyError {
+  constructor(message: string);
+}
+
+class VectorStoreError extends RagifyError {
+  constructor(message: string);
+}
+```
+
+## Events
+
+The Ragify class emits events for various operations:
+
+```typescript
+interface RagifyEvents {
+  "initialize": () => void;
+  "ingest": (doc: Document) => void;
+  "query": (query: string, results: QueryResult[]) => void;
+  "error": (error: Error) => void;
+}
+
+ragify.on("ingest", (doc) => {
+  console.log("Document ingested:", doc);
+});
+``` 

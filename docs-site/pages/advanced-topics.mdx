@@ -1,0 +1,274 @@
+# Advanced Topics
+
+This guide covers advanced features and patterns in Ragify.js.
+
+## Custom Embedding Providers
+
+Create your own embedding provider by implementing the `EmbeddingProvider` interface:
+
+```typescript
+interface EmbeddingProvider {
+  generateEmbeddings(texts: string[]): Promise<number[][]>;
+  getDimension(): Promise<number>;
+}
+
+class CustomEmbeddings implements EmbeddingProvider {
+  async generateEmbeddings(texts: string[]): Promise<number[][]> {
+    // Implement your embedding logic
+    return texts.map(text => /* generate embedding */);
+  }
+
+  async getDimension(): Promise<number> {
+    return 1536; // Your embedding dimension
+  }
+}
+```
+
+## Custom Vector Stores
+
+Implement your own vector store by implementing the `VectorStore` interface:
+
+```typescript
+interface VectorStore {
+  initialize(): Promise<void>;
+  upsert(vectors: Vector[]): Promise<void>;
+  search(query: number[], options: SearchOptions): Promise<SearchResult[]>;
+}
+
+class CustomVectorStore implements VectorStore {
+  async initialize(): Promise<void> {
+    // Initialize your storage
+  }
+
+  async upsert(vectors: Vector[]): Promise<void> {
+    // Store vectors
+  }
+
+  async search(query: number[], options: SearchOptions): Promise<SearchResult[]> {
+    // Implement search logic
+    return [];
+  }
+}
+```
+
+## Custom Text Chunking
+
+Implement custom text chunking strategies:
+
+```typescript
+interface ChunkingConfig {
+  chunkSize?: number;
+  chunkOverlap?: number;
+  splitter?: (text: string) => string[];
+}
+
+// Custom splitter example
+const customSplitter = (text: string): string[] => {
+  // Implement your splitting logic
+  return text.split(/\n\n+/);
+};
+
+const ragify = new Ragify({
+  embeddingProvider: createEmbeddingProvider("openai", "your-api-key"),
+  chunkingConfig: {
+    chunkSize: 1000,
+    chunkOverlap: 200,
+    splitter: customSplitter
+  }
+});
+```
+
+## Batch Processing
+
+Process documents in batches for better performance:
+
+```typescript
+// Batch ingest
+const documents = [
+  { text: "Document 1", metadata: { id: 1 } },
+  { text: "Document 2", metadata: { id: 2 } }
+];
+
+await Promise.all(
+  documents.map(doc => ragify.ingest(doc))
+);
+
+// Batch query
+const queries = [
+  "Query 1",
+  "Query 2",
+  "Query 3"
+];
+
+const results = await Promise.all(
+  queries.map(query => ragify.query(query))
+);
+```
+
+## Metadata Filtering
+
+Use metadata to filter and organize documents:
+
+```typescript
+// Ingest with metadata
+await ragify.ingest({
+  text: "Document content",
+  metadata: {
+    category: "technical",
+    author: "John Doe",
+    date: "2024-03-20"
+  }
+});
+
+// Query with metadata filter
+const results = await ragify.query("Your query", {
+  metadata: {
+    category: "technical",
+    date: { $gte: "2024-01-01" }
+  }
+});
+```
+
+## Error Handling
+
+Implement custom error handling:
+
+```typescript
+try {
+  await ragify.initialize();
+} catch (error) {
+  if (error instanceof VectorStoreError) {
+    // Handle vector store errors
+  } else if (error instanceof EmbeddingError) {
+    // Handle embedding errors
+  } else {
+    // Handle other errors
+  }
+}
+```
+
+## Event Handling
+
+Listen to Ragify events:
+
+```typescript
+ragify.on("ingest", (doc) => {
+  console.log("Document ingested:", doc);
+});
+
+ragify.on("query", (query, results) => {
+  console.log("Query results:", results);
+});
+
+ragify.on("error", (error) => {
+  console.error("Error occurred:", error);
+});
+```
+
+## Performance Optimization
+
+### Caching
+
+Implement caching for embeddings:
+
+```typescript
+class CachedEmbeddings implements EmbeddingProvider {
+  private cache: Map<string, number[]>;
+
+  constructor(private provider: EmbeddingProvider) {
+    this.cache = new Map();
+  }
+
+  async generateEmbeddings(texts: string[]): Promise<number[][]> {
+    const results: number[][] = [];
+    
+    for (const text of texts) {
+      if (this.cache.has(text)) {
+        results.push(this.cache.get(text)!);
+      } else {
+        const embedding = await this.provider.generateEmbeddings([text]);
+        this.cache.set(text, embedding[0]);
+        results.push(embedding[0]);
+      }
+    }
+    
+    return results;
+  }
+
+  async getDimension(): Promise<number> {
+    return this.provider.getDimension();
+  }
+}
+```
+
+### Parallel Processing
+
+Process documents in parallel:
+
+```typescript
+async function processDocuments(documents: Document[]) {
+  const chunks = documents.map(doc => 
+    ragify.chunker.chunk(doc.text)
+  );
+
+  const embeddings = await Promise.all(
+    chunks.map(chunk => 
+      ragify.embeddingProvider.generateEmbeddings(chunk)
+    )
+  );
+
+  return embeddings;
+}
+```
+
+## Security Considerations
+
+### API Key Management
+
+```typescript
+// Use environment variables
+const apiKey = process.env.OPENAI_API_KEY;
+
+// Use a secure key management service
+const apiKey = await keyManagementService.getKey("openai");
+```
+
+### Rate Limiting
+
+```typescript
+class RateLimitedEmbeddings implements EmbeddingProvider {
+  private queue: Array<() => Promise<number[][]>> = [];
+  private processing = false;
+
+  constructor(
+    private provider: EmbeddingProvider,
+    private rateLimit: number
+  ) {}
+
+  async generateEmbeddings(texts: string[]): Promise<number[][]> {
+    return new Promise((resolve) => {
+      this.queue.push(async () => {
+        const result = await this.provider.generateEmbeddings(texts);
+        resolve(result);
+      });
+      this.processQueue();
+    });
+  }
+
+  private async processQueue() {
+    if (this.processing || this.queue.length === 0) return;
+    
+    this.processing = true;
+    const batch = this.queue.splice(0, this.rateLimit);
+    
+    await Promise.all(batch.map(fn => fn()));
+    
+    this.processing = false;
+    this.processQueue();
+  }
+
+  async getDimension(): Promise<number> {
+    return this.provider.getDimension();
+  }
+}
+``` 

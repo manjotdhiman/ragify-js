@@ -7,6 +7,12 @@ A powerful Retrieval-Augmented Generation (RAG) library for JavaScript/TypeScrip
 [![License](https://img.shields.io/npm/l/ragify-js.svg)](https://github.com/manjotdhiman/ragify-js/blob/main/LICENSE)
 [![CI](https://github.com/manjotdhiman/ragify-js/actions/workflows/ci.yml/badge.svg)](https://github.com/manjotdhiman/ragify-js/actions/workflows/ci.yml)
 [![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://manjotdhiman.github.io/ragify-js/)
+[![Code Coverage](https://img.shields.io/badge/coverage-100%25-brightgreen.svg)](https://github.com/manjotdhiman/ragify-js/actions/workflows/ci.yml)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue.svg)](https://www.typescriptlang.org/)
+[![Node.js](https://img.shields.io/badge/Node.js-18.x-green.svg)](https://nodejs.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/manjotdhiman/ragify-js/pulls)
+[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/manjotdhiman/ragify-js/graphs/commit-activity)
+[![GitHub stars](https://img.shields.io/github/stars/manjotdhiman/ragify-js.svg?style=social)](https://github.com/manjotdhiman/ragify-js/stargazers)
 
 ## Documentation
 

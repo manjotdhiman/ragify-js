@@ -1,0 +1,254 @@
+# Examples
+
+This page provides practical examples of using Ragify.js in different scenarios.
+
+## Basic Usage
+
+### Document Search
+
+```typescript
+import { Ragify } from "ragify-js";
+import { createEmbeddingProvider } from "ragify-js/factory";
+
+// Initialize Ragify
+const ragify = new Ragify({
+  embeddingProvider: createEmbeddingProvider("openai", process.env.OPENAI_API_KEY),
+  collectionName: "documents"
+});
+
+// Initialize the vector store
+await ragify.initialize();
+
+// Ingest documents
+await ragify.ingest({
+  text: "Ragify.js is a powerful RAG library for JavaScript/TypeScript.",
+  metadata: { type: "description" }
+});
+
+// Query documents
+const results = await ragify.query("What is Ragify.js?");
+console.log(results);
+```
+
+### Document Classification
+
+```typescript
+// Ingest documents with categories
+await ragify.ingest({
+  text: "This is a technical document about RAG.",
+  metadata: { category: "technical" }
+});
+
+await ragify.ingest({
+  text: "This is a business document about strategy.",
+  metadata: { category: "business" }
+});
+
+// Query with category filter
+const technicalDocs = await ragify.query("RAG implementation", {
+  metadata: { category: "technical" }
+});
+```
+
+## Advanced Examples
+
+### Custom Chunking Strategy
+
+```typescript
+// Custom chunking by paragraphs
+const customSplitter = (text: string): string[] => {
+  return text.split(/\n\n+/).filter(chunk => chunk.trim());
+};
+
+const ragify = new Ragify({
+  embeddingProvider: createEmbeddingProvider("openai", process.env.OPENAI_API_KEY),
+  chunkingConfig: {
+    chunkSize: 1000,
+    chunkOverlap: 200,
+    splitter: customSplitter
+  }
+});
+```
+
+### Batch Processing
+
+```typescript
+// Process multiple documents
+const documents = [
+  { text: "Document 1", metadata: { id: 1 } },
+  { text: "Document 2", metadata: { id: 2 } },
+  { text: "Document 3", metadata: { id: 3 } }
+];
+
+// Ingest in parallel
+await Promise.all(
+  documents.map(doc => ragify.ingest(doc))
+);
+
+// Query multiple questions
+const questions = [
+  "What is RAG?",
+  "How does it work?",
+  "What are the benefits?"
+];
+
+const answers = await Promise.all(
+  questions.map(q => ragify.query(q))
+);
+```
+
+### Metadata Filtering
+
+```typescript
+// Ingest with rich metadata
+await ragify.ingest({
+  text: "Technical documentation for Ragify.js",
+  metadata: {
+    type: "documentation",
+    category: "technical",
+    author: "John Doe",
+    date: "2024-03-20",
+    version: "1.0.0"
+  }
+});
+
+// Query with complex filters
+const results = await ragify.query("API documentation", {
+  metadata: {
+    type: "documentation",
+    category: "technical",
+    date: { $gte: "2024-01-01" }
+  }
+});
+```
+
+## Real-World Examples
+
+### Documentation Search
+
+```typescript
+// Ingest documentation files
+const docs = [
+  {
+    text: "Ragify.js is a powerful RAG library...",
+    metadata: {
+      type: "docs",
+      section: "introduction",
+      version: "1.0.0"
+    }
+  },
+  {
+    text: "To use Ragify.js, first install it...",
+    metadata: {
+      type: "docs",
+      section: "getting-started",
+      version: "1.0.0"
+    }
+  }
+];
+
+await Promise.all(docs.map(doc => ragify.ingest(doc)));
+
+// Search documentation
+const searchResults = await ragify.query("How do I install Ragify.js?", {
+  metadata: {
+    type: "docs",
+    version: "1.0.0"
+  }
+});
+```
+
+### Code Search
+
+```typescript
+// Ingest code files
+const codeFiles = [
+  {
+    text: "class Ragify { constructor() {...} }",
+    metadata: {
+      type: "code",
+      language: "typescript",
+      file: "src/Ragify.ts"
+    }
+  }
+];
+
+await Promise.all(codeFiles.map(file => ragify.ingest(file)));
+
+// Search code
+const codeResults = await ragify.query("Show me the Ragify class definition", {
+  metadata: {
+    type: "code",
+    language: "typescript"
+  }
+});
+```
+
+### Research Paper Search
+
+```typescript
+// Ingest research papers
+const papers = [
+  {
+    text: "Abstract: This paper presents...",
+    metadata: {
+      type: "paper",
+      field: "machine-learning",
+      year: 2024,
+      authors: ["John Doe", "Jane Smith"]
+    }
+  }
+];
+
+await Promise.all(papers.map(paper => ragify.ingest(paper)));
+
+// Search papers
+const paperResults = await ragify.query("Recent papers on RAG", {
+  metadata: {
+    type: "paper",
+    year: { $gte: 2023 }
+  }
+});
+```
+
+## CLI Examples
+
+### Document Ingestion
+
+```bash
+# Ingest a single file
+npx ragify-js ingest document.txt
+
+# Ingest multiple files
+npx ragify-js ingest *.md
+
+# Ingest with metadata
+npx ragify-js ingest document.txt \
+  --metadata '{"category": "technical", "author": "John Doe"}'
+```
+
+### Document Querying
+
+```bash
+# Basic query
+npx ragify-js query "What is RAG?"
+
+# Query with options
+npx ragify-js query "Show me technical docs" \
+  --metadata '{"category": "technical"}' \
+  --top-k 5 \
+  --threshold 0.8
+```
+
+### Collection Management
+
+```bash
+# Create a new collection
+npx ragify-js init --collection research
+
+# List collections
+npx ragify-js list
+
+# Delete a collection
+npx ragify-js delete --collection research
+``` 
