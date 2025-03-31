@@ -16,5 +16,6 @@ export default withNextra({
   images: {
     unoptimized: true
   },
-  basePath: "/ragify-js"
+  basePath: process.env.NODE_ENV === "production" ? "/ragify-js" : "",
+  assetPrefix: process.env.NODE_ENV === "production" ? "/ragify-js/" : ""
 }); 

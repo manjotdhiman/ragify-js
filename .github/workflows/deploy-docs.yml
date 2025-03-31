@@ -6,11 +6,13 @@ on:
       - main
     paths:
       - "docs-site/**"
+      - ".github/workflows/**"
   pull_request:
     branches:
       - main
     paths:
       - "docs-site/**"
+      - ".github/workflows/**"
   workflow_dispatch:
 
 permissions:
