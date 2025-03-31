@@ -12,7 +12,8 @@
   ],
   "scripts": {
     "build": "tsc",
-    "test": "jest",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
     "lint": "eslint \"src/**/*.ts\" \"examples/**/*.ts\"",
     "lint:fix": "eslint \"src/**/*.ts\" \"examples/**/*.ts\" --fix",
     "format": "prettier --write \"src/**/*.ts\"",
