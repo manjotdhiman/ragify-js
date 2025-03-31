@@ -1,0 +1,65 @@
+# Ragify.js
+
+A powerful Retrieval-Augmented Generation (RAG) library for JavaScript/TypeScript.
+
+## Features
+
+- 🚀 **Easy to Use**: Simple API for document ingestion and querying
+- 🔍 **Smart Chunking**: Intelligent text splitting with context preservation
+- 🤖 **Multiple Embedding Providers**: Support for OpenAI and more
+- 💾 **Vector Store Integration**: Built-in support for Qdrant
+- 📦 **TypeScript Support**: Full type safety and autocompletion
+- 🛠️ **CLI Tool**: Command-line interface for quick operations
+
+## Quick Start
+
+```bash
+# Install Ragify.js
+yarn add ragify-js
+
+# Initialize with OpenAI embeddings
+const ragify = new Ragify({
+  embeddingProvider: createEmbeddingProvider("openai", "your-api-key"),
+  collectionName: "my-documents"
+});
+
+# Ingest documents
+await ragify.ingest({
+  text: "Your document text here...",
+  metadata: { source: "example" }
+});
+
+# Query documents
+const results = await ragify.query("Your query here");
+```
+
+## Documentation
+
+- [Getting Started](./getting-started) - Installation and basic usage
+- [Core Concepts](./core-concepts) - Understanding the fundamentals
+- [Configuration](./configuration) - Customize your setup
+- [API Reference](./api-reference) - Detailed API documentation
+- [CLI Guide](./cli-guide) - Command-line interface usage
+- [Advanced Topics](./advanced-topics) - Advanced features and patterns
+- [Examples](./examples) - Code examples and use cases
+- [Contributing](./contributing) - How to contribute to Ragify.js
+
+## Why Ragify.js?
+
+Ragify.js is designed to make it easy to build RAG applications in JavaScript/TypeScript. It provides:
+
+- **Simplicity**: Clean, intuitive API that just works
+- **Flexibility**: Customizable components and configurations
+- **Performance**: Optimized for speed and efficiency
+- **Reliability**: Production-ready with comprehensive testing
+- **Community**: Active development and support
+
+## Getting Help
+
+- [GitHub Issues](https://github.com/manjotdhiman/ragify-js/issues)
+- [Discussions](https://github.com/manjotdhiman/ragify-js/discussions)
+- [Stack Overflow](https://stackoverflow.com/questions/tagged/ragify-js)
+
+## License
+
+MIT © [Manjot Singh](https://github.com/manjotdhiman) 
