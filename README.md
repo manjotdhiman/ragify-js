@@ -1,9 +1,16 @@
 # Ragify.js
 
+A powerful Retrieval-Augmented Generation (RAG) library for JavaScript/TypeScript.
+
 [![npm version](https://img.shields.io/npm/v/ragify-js.svg)](https://www.npmjs.com/package/ragify-js)
 [![npm downloads](https://img.shields.io/npm/dm/ragify-js.svg)](https://www.npmjs.com/package/ragify-js)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![License](https://img.shields.io/npm/l/ragify-js.svg)](https://github.com/manjotdhiman/ragify-js/blob/main/LICENSE)
 [![CI](https://github.com/manjotdhiman/ragify-js/actions/workflows/ci.yml/badge.svg)](https://github.com/manjotdhiman/ragify-js/actions/workflows/ci.yml)
+[![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://manjotdhiman.github.io/ragify-js/)
+
+## Documentation
+
+📚 [View the full documentation](https://manjotdhiman.github.io/ragify-js/)
 
 A powerful and flexible Retrieval-Augmented Generation (RAG) library for Node.js and TypeScript. Built with OpenAI embeddings and Qdrant vector store.
 
