@@ -86,13 +86,13 @@ app.post("/documents", async (req: Request, res: Response) => {
 // Query documents
 app.post("/query", async (req: Request, res: Response) => {
   try {
-    const { query } = req.body;
+    const { query, topK = 5, threshold = 0.7 } = req.body;
 
     if (!query) {
       return res.status(400).json({ error: "Query is required" });
     }
 
-    const results = await rag.query(query, 5, 0.7, progressTracker);
+    const results = await rag.query(query, topK, threshold, progressTracker);
 
     res.json({
       results: results.map((result: { text: string; score: number; documentId: string }) => ({

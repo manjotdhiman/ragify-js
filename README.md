@@ -14,6 +14,12 @@ A powerful Retrieval-Augmented Generation (RAG) library for JavaScript/TypeScrip
 [![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://github.com/manjotdhiman/ragify-js/graphs/commit-activity)
 [![GitHub stars](https://img.shields.io/github/stars/manjotdhiman/ragify-js.svg?style=social)](https://github.com/manjotdhiman/ragify-js/stargazers)
 
+## Demo
+
+Watch the Q&A demo in action:
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/Ndhzjh1kPiw?si=rNUfAPpygMa1pfpD" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 ## Documentation
 
 📚 [View the full documentation](https://manjotdhiman.github.io/ragify-js/)
