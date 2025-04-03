@@ -1,12 +1,19 @@
-import nextra from 'nextra'
- 
-const withNextra = nextra({
+import nextra from "nextra";
 
-  // ... Other Nextra config options
-})
- 
-// You can include other Next.js configuration options here, in addition to Nextra settings:
+const withNextra = nextra({
+  defaultShowCopyCode: true,
+  staticImage: true,
+  search: {
+    codeblocks: true
+  },
+});
+
 export default withNextra({
-  output: 'export',
-  // ... Other Next.js config options
-})
+  reactStrictMode: true,
+  output: "export",
+  images: {
+    unoptimized: true
+  },
+  basePath: process.env.NODE_ENV === "production" ? "/ragify-js" : "",
+  assetPrefix: process.env.NODE_ENV === "production" ? "/ragify-js/" : ""
+}); 
