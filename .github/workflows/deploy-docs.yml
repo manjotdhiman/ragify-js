@@ -5,13 +5,13 @@ on:
     branches:
       - main
     paths:
-      - "docs-site/**"
+      - "docs/**"
       - ".github/workflows/**"
   pull_request:
     branches:
       - main
     paths:
-      - "docs-site/**"
+      - "docs/**"
       - ".github/workflows/**"
   workflow_dispatch:
 
@@ -29,7 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: docs-site
+        working-directory: docs
 
     steps:
       - uses: actions/checkout@v4
@@ -39,7 +39,7 @@ jobs:
         with:
           node-version: "20"
           cache: "yarn"
-          cache-dependency-path: docs-site/yarn.lock
+          cache-dependency-path: docs/yarn.lock
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile
@@ -50,11 +50,11 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: docs-site/out
+          path: docs/out
 
   deploy:
     environment:
-      name: docs-site
+      name: docs
       url: ${{ steps.deployment.outputs.page_url }}
     needs: build
     runs-on: ubuntu-latest

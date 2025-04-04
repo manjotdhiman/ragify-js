@@ -18,7 +18,9 @@ A powerful Retrieval-Augmented Generation (RAG) library for JavaScript/TypeScrip
 
 Watch the Q&A demo in action:
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/Ndhzjh1kPiw?si=rNUfAPpygMa1pfpD" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[![Ragify.js Q&A Demo](https://img.youtube.com/vi/Ndhzjh1kPiw/maxresdefault.jpg)](https://youtu.be/Ndhzjh1kPiw)
+
+Click the image above to watch the demo video.
 
 ## Documentation
 
